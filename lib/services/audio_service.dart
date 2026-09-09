@@ -16,6 +16,7 @@ class LocalAudioService implements AudioService {
   UserSettings _settings = const UserSettings();
   final Map<SoundCue, AudioPlayer> _players = {};
   final AudioPlayer _music = AudioPlayer();
+  Future<void> _musicQueue = Future.value();
   bool _started = false, _suspended = false, _disposed = false;
   Future<void> _safe(Future<void> Function() action) async {
     if (_disposed) return;
@@ -34,12 +35,13 @@ class LocalAudioService implements AudioService {
   @override
   void configure(UserSettings settings) { _settings = settings; _syncMusic(); }
   void _syncMusic() {
-    unawaited(_safe(() async {
+    _musicQueue = _musicQueue.then((_) => _safe(() async {
       if (!_settings.music || _suspended) { await _music.pause(); return; }
       if (!_started) {
-        _started = true;
         await _music.setReleaseMode(ReleaseMode.loop);
+        if (_disposed || _suspended || !_settings.music) return;
         await _music.play(AssetSource('audio/ambient.wav'), volume: .15);
+        _started = true;
       } else { await _music.resume(); }
     }));
   }
@@ -53,6 +55,7 @@ class LocalAudioService implements AudioService {
   @override
   Future<void> dispose() async {
     _disposed = true;
+    await _musicQueue;
     for (final p in _players.values) { await p.dispose(); }
     await _music.dispose();
   }
