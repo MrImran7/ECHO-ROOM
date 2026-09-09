@@ -50,6 +50,7 @@ class EchoGame extends FlameGame<World> {
   }
   @override
   void render(Canvas canvas) {
+    super.render(canvas);
     canvas.save(); canvas.scale(size.x / 400, size.y / 440);
     canvas.clipRect(const Rect.fromLTWH(0, 0, 400, 440));
     art.background(canvas);

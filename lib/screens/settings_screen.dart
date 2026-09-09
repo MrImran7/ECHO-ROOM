@@ -41,7 +41,7 @@ class SettingsScreen extends ConsumerWidget {
           onChanged: (v) => ref.read(debugProvider.notifier).update(skipObservation: v)),
         SwitchListTile(title: const Text('Show hit regions'), value: debug.hitboxes,
           onChanged: (v) => ref.read(debugProvider.notifier).update(hitboxes: v)),
-        Text('Select any unlocked room from Chapters.\nLives enabled: ${GameConfig.livesEnabled}\nRegeneration: ${GameConfig.lifeMinutes} minutes', style: const TextStyle(fontSize: 12)),
+        const Text('Select any unlocked room from Chapters.\nLives enabled: ${GameConfig.livesEnabled}\nRegeneration: ${GameConfig.lifeMinutes} minutes', style: const TextStyle(fontSize: 12)),
         Wrap(spacing: 8, children: [
           TextButton(onPressed: () => change(() => controller.commit(p.patch({'hints': p.hints + 10}))), child: const Text('+10 HINTS')),
           TextButton(onPressed: () => change(() => controller.commit(p.patch({'hints': (p.hints - 1).clamp(0, 999)}))), child: const Text('−1 HINT')),

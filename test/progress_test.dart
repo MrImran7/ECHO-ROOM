@@ -70,4 +70,7 @@ void main() {
     expect(life.refresh(p, now.subtract(const Duration(days: 1))).lives, 0);
     expect(life.consume(p, now).lives, 0);
   });
+  test('unresolved sessions cannot award progression', () {
+    expect(() => completeSession(Progress(), session(), DateTime(2026), 20), throwsStateError);
+  });
 }

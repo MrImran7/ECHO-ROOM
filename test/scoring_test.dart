@@ -25,4 +25,10 @@ void main() {
     expect(stars(8.5, 1, 1), 2); expect(stars(8.51, 0, 0), 1);
     expect(stars(1, 0, 3), 1);
   });
+  test('invalid scoring inputs fail with a clear argument error', () {
+    for (final limit in [0.0, -1.0, double.nan, double.infinity]) {
+      expect(() => calculateScore(won: true, elapsed: 1, limit: limit,
+        mistakes: 0, hints: 0, streak: 0), throwsArgumentError);
+    }
+  });
 }

@@ -155,4 +155,20 @@ void main() {
     }
     expect(s.mistakes, 0);
   });
+  test('malformed transform geometry cannot enter a room state', () {
+    final s = session();
+    expect(() => ChangeRegistry().apply(s.original, const [
+      Change(type: 'OBJECT_RESIZED', objectId: 'lamp', values: {'scale': -1}),
+    ]), throwsFormatException);
+    expect(s.original.object('lamp').scale, 1);
+  });
+  test('overlap resolution respects foreground objects without answer priority', () {
+    const back = RoomObject(id: 'back', art: 'book', x: .5, y: .5, width: .2, height: .2);
+    const visible = RoomObject(id: 'front', art: 'book', x: .5, y: .5, width: .1, height: .1, z: 2);
+    final original = RoomState([back, visible]);
+    final changed = RoomState([back.patch({'visible': false}), visible]);
+    final hits = HitTester(original, changed, {'back'});
+    expect(hits.resolve(.5, .5), 'front');
+    expect(hits.resolve(.41, .5), 'back');
+  });
 }

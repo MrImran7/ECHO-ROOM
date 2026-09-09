@@ -106,7 +106,7 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen> {
               fit: StackFit.expand, children: [
                 _viewport,
                 if (s.phase == GamePhase.intro || s.phase == GamePhase.countdown) IgnorePointer(child: ColoredBox(color: EchoTheme.background,
-                  child: Center(child: AnimatedSwitcher(duration: Duration(milliseconds: GameConfig.transitionMilliseconds),
+                  child: Center(child: AnimatedSwitcher(duration: const Duration(milliseconds: GameConfig.transitionMilliseconds),
                     child: Text(s.phase == GamePhase.countdown ? '${s.remaining.ceil().clamp(1, 3)}' : 'Remember\neverything.',
                       key: ValueKey('${s.phase}${s.remaining.ceil()}'), textAlign: TextAlign.center,
                       style: TextStyle(fontSize: s.phase == GamePhase.countdown ? 80 : 34, fontWeight: FontWeight.w300)))))),
