@@ -1,0 +1,24 @@
+name: echo_room
+description: An offline visual-memory mystery. Remember the room. Find the change.
+publish_to: none
+version: 0.1.0+1
+environment:
+  sdk: '>=3.11.0 <4.0.0'
+  flutter: '>=3.41.0'
+dependencies:
+  flutter:
+    sdk: flutter
+  flame: ^1.38.2
+  flutter_riverpod: ^3.4.3
+  shared_preferences: ^2.5.5
+  audioplayers: ^6.8.1
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/rooms/
+    - assets/audio/
