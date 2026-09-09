@@ -29,7 +29,15 @@ abstract final class GameConfig {
   static const transitionMilliseconds = 180;
   static const tapCooldown = .32;
   static const livesEnabled = !bool.fromEnvironment('DISABLE_LIVES');
-  static const lifeMinutes = int.fromEnvironment('LIFE_MINUTES', defaultValue: 20);
+  static const lifeMinutes = int.fromEnvironment(
+    'LIFE_MINUTES',
+    defaultValue: 20,
+  );
   static const debugTools = kDebugMode;
-  static const milestones = {3: 'SHARP EYES', 5: 'DETECTIVE', 10: 'EAGLE EYE', 20: 'IMPOSSIBLE'};
+  static const milestones = {
+    3: 'SHARP EYES',
+    5: 'DETECTIVE',
+    10: 'EAGLE EYE',
+    20: 'IMPOSSIBLE',
+  };
 }

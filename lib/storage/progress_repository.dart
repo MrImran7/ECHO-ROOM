@@ -1,5 +1,7 @@
 import 'dart:convert';
+
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../models/progress.dart';
 import '../models/scene.dart';
 
@@ -7,8 +9,10 @@ abstract interface class ProgressRepository {
   Future<Progress> load();
   Future<void> save(Progress progress);
 }
+
 class LocalProgressRepository implements ProgressRepository {
-  LocalProgressRepository({SharedPreferencesAsync? preferences}) : _prefs = preferences ?? SharedPreferencesAsync();
+  LocalProgressRepository({SharedPreferencesAsync? preferences})
+    : _prefs = preferences ?? SharedPreferencesAsync();
   final SharedPreferencesAsync _prefs;
   static const key = 'echo_room.progress.v1';
   Future<void> _pending = Future.value();
@@ -19,6 +23,7 @@ class LocalProgressRepository implements ProgressRepository {
     // Do not silently destroy a damaged/newer save. Bootstrap shows recovery UI.
     return Progress.fromJson(jsonDecode(raw) as Json);
   }
+
   @override
   Future<void> save(Progress progress) {
     final bytes = jsonEncode(progress.toJson());
@@ -28,10 +33,13 @@ class LocalProgressRepository implements ProgressRepository {
     return write;
   }
 }
+
 class MemoryProgressRepository implements ProgressRepository {
   Progress value = Progress();
   @override
   Future<Progress> load() async => Progress.fromJson(value.toJson());
   @override
-  Future<void> save(Progress progress) async { value = Progress.fromJson(progress.toJson()); }
+  Future<void> save(Progress progress) async {
+    value = Progress.fromJson(progress.toJson());
+  }
 }
