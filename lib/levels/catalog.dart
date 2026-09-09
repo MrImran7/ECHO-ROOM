@@ -19,6 +19,9 @@ class GameCatalog {
   }
   void validate() {
     if (levels.isEmpty) throw const FormatException('No levels');
+    for (final room in rooms.values) {
+      for (final object in room.objects) { object.validate(); }
+    }
     for (var i = 0; i < levels.length; i++) {
       final l = levels[i], room = rooms[levels[i].roomId];
       if (l.levelId != i + 1 || room == null || l.changes.isEmpty || l.hints.length != 3 ||

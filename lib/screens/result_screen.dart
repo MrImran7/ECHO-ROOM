@@ -5,6 +5,7 @@ import '../app/providers.dart';
 import '../app/theme.dart';
 import '../collection/definitions.dart';
 import '../game/session.dart';
+import '../core/config.dart';
 import '../services/audio_service.dart';
 import '../services/progression_service.dart';
 import '../widgets/common.dart';
@@ -48,7 +49,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
           style: Theme.of(context).textTheme.headlineMedium), const SizedBox(height: 20),
         Center(child: Stars(done.score.stars, size: 40)), const SizedBox(height: 10),
         TweenAnimationBuilder<double>(tween: Tween(begin: 0, end: done.score.total.toDouble()),
-          duration: const Duration(milliseconds: 550), builder: (_, value, _) => Text(value.round().toString(),
+          duration: const Duration(milliseconds: GameConfig.scoreAnimationMilliseconds), builder: (_, value, _) => Text(value.round().toString(),
             textAlign: TextAlign.center, style: const TextStyle(fontSize: 66, fontWeight: FontWeight.w300, color: EchoTheme.cream))),
         const Eyebrow('POINTS'), const SizedBox(height: 24),
         Panel(child: Column(children: [Row(children: [

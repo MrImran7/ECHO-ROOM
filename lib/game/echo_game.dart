@@ -25,14 +25,21 @@ class EchoGame extends FlameGame<World> {
   Color backgroundColor() => const Color(0xff354c45);
   @override
   Future<void> onLoad() async {
+    await super.onLoad();
     // Procedural rooms load instantly. Replacement images are decoded once here.
     final paths = <String>{...room.objects.map((o) => o.asset).whereType<String>(),
       ...?session()?.changed.objects.map((o) => o.asset).whereType<String>()};
+    try {
     for (final path in paths) {
       final data = await rootBundle.load(path);
       final codec = await ui.instantiateImageCodec(data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes));
       art.images[path] = (await codec.getNextFrame()).image;
       codec.dispose();
+    }
+    } catch (_) {
+      for (final image in art.images.values) { image.dispose(); }
+      art.images.clear();
+      rethrow;
     }
   }
   @override

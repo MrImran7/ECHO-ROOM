@@ -16,6 +16,7 @@ class Completion {
 }
 Completion completeSession(Progress p, GameSession s, DateTime now, int chapterSize,
     {bool livesEnabled = GameConfig.livesEnabled}) {
+  if (!s.finished) throw StateError('Only a completed session can update progression.');
   final won = s.phase == GamePhase.won;
   final streak = won ? (s.mistakes == 0 ? p.streak + 1 : 1) : 0;
   final score = calculateScore(won: won, elapsed: s.answerElapsed, limit: s.level.answerDuration,

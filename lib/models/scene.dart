@@ -24,6 +24,14 @@ class RoomObject {
   Json toJson() => {'id': id, 'art': art, 'x': x, 'y': y, 'width': width,
     'height': height, 'rotation': rotation, 'scale': scale, 'visible': visible,
     'z': z, 'color': color, 'text': text, 'variant': variant, 'asset': asset, 'hitPadding': hitPadding};
+  void validate() {
+    if (id.isEmpty || art.isEmpty ||
+        [x, y, width, height, rotation, scale, hitPadding].any((v) => !v.isFinite) ||
+        x < 0 || x > 1 || y < 0 || y > 1 || width <= 0 || height <= 0 ||
+        scale <= 0 || hitPadding < 0) {
+      throw FormatException('Invalid room object: $id');
+    }
+  }
   RoomObject patch(Json patch) => RoomObject.fromJson({...toJson(), ...patch, 'id': id});
   bool contains(double px, double py, {double padding = 0}) {
     // Work in the 400x440 artboard so rotations use the same metric as rendering.
@@ -89,6 +97,7 @@ class ChangeRegistry {
       final transform = transforms[change.type];
       if (index < 0 || transform == null) throw FormatException('Invalid change ${change.toJson()}');
       result[index] = transform(result[index], change.values);
+      result[index].validate();
     }
     return RoomState(result);
   }
