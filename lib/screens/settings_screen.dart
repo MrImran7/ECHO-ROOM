@@ -34,14 +34,18 @@ class SettingsScreen extends ConsumerWidget {
             subtitle: const Text('A little atmosphere'),
             value: p.settings.music,
             onChanged: (v) => change(
-              () => controller.settings(ref.read(profileProvider).settings.copyWith(music: v)),
+              () => controller.settings(
+                ref.read(profileProvider).settings.copyWith(music: v),
+              ),
             ),
           ),
           SwitchListTile(
             title: const Text('Sound effects'),
             value: p.settings.sound,
             onChanged: (v) => change(
-              () => controller.settings(ref.read(profileProvider).settings.copyWith(sound: v)),
+              () => controller.settings(
+                ref.read(profileProvider).settings.copyWith(sound: v),
+              ),
             ),
           ),
           SwitchListTile(
@@ -49,7 +53,9 @@ class SettingsScreen extends ConsumerWidget {
             subtitle: const Text('Feel the find'),
             value: p.settings.haptics,
             onChanged: (v) => change(
-              () => controller.settings(ref.read(profileProvider).settings.copyWith(haptics: v)),
+              () => controller.settings(
+                ref.read(profileProvider).settings.copyWith(haptics: v),
+              ),
             ),
           ),
           const SizedBox(height: 20),

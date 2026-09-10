@@ -109,7 +109,6 @@ void main() {
     await controller.hint();
     expect(controller.game!.hints, 2);
   });
-
 }
 
 class HintRepository extends MemoryProgressRepository {

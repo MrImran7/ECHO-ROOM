@@ -212,7 +212,9 @@ class HapticsService {
     if (!_available) return;
     final generation = ++_generation;
     await _safe(HapticFeedback.selectionClick);
-    await Future<void>.delayed(const Duration(milliseconds: GameConfig.hapticPatternGapMilliseconds));
+    await Future<void>.delayed(
+      const Duration(milliseconds: GameConfig.hapticPatternGapMilliseconds),
+    );
     if (_available && generation == _generation)
       await _safe(HapticFeedback.lightImpact);
   }

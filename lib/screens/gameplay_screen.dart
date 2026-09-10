@@ -19,7 +19,8 @@ class GameplayScreen extends ConsumerStatefulWidget {
   ConsumerState<GameplayScreen> createState() => _GameplayScreenState();
 }
 
-class _GameplayScreenState extends ConsumerState<GameplayScreen> with WidgetsBindingObserver {
+class _GameplayScreenState extends ConsumerState<GameplayScreen>
+    with WidgetsBindingObserver {
   late final GameSession _session;
   late final Widget _viewport;
   bool _allowPop = false, _resultsQueued = false, _openingResult = false;
@@ -56,7 +57,8 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen> with WidgetsBin
     if (state == AppLifecycleState.resumed) _queueResults();
   }
 
-  bool get _foreground => WidgetsBinding.instance.lifecycleState == null ||
+  bool get _foreground =>
+      WidgetsBinding.instance.lifecycleState == null ||
       WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed;
 
   Future<void> _home() async {
@@ -78,10 +80,17 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen> with WidgetsBin
 
   void _queueResults() {
     final c = ref.read(sessionProvider.notifier);
-    if (_resultsQueued || _openingResult || !_foreground || !_session.finished || c.completion == null) return;
+    if (_resultsQueued ||
+        _openingResult ||
+        !_foreground ||
+        !_session.finished ||
+        c.completion == null)
+      return;
     _resultsQueued = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted || !_foreground || !(ModalRoute.of(context)?.isCurrent ?? false)) {
+      if (!mounted ||
+          !_foreground ||
+          !(ModalRoute.of(context)?.isCurrent ?? false)) {
         _resultsQueued = false;
         return;
       }
@@ -242,10 +251,15 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen> with WidgetsBin
                                       color: EchoTheme.background,
                                       child: Center(
                                         child: AnimatedSwitcher(
-                                          duration: MediaQuery.disableAnimationsOf(context) ? Duration.zero : const Duration(
-                                            milliseconds: GameConfig
-                                                .transitionMilliseconds,
-                                          ),
+                                          duration:
+                                              MediaQuery.disableAnimationsOf(
+                                                context,
+                                              )
+                                              ? Duration.zero
+                                              : const Duration(
+                                                  milliseconds: GameConfig
+                                                      .transitionMilliseconds,
+                                                ),
                                           child: Text(
                                             s.phase == GamePhase.countdown
                                                 ? '${s.remaining.ceil().clamp(1, 3)}'

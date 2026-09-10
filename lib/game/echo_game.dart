@@ -82,7 +82,8 @@ class EchoGame extends FlameGame<World> {
         final s = session();
         _diagnostics ??= TextPainter(textDirection: TextDirection.ltr);
         _diagnostics!.text = TextSpan(
-          text: 'L${s?.level.levelId} ${s?.phase.name}  '
+          text:
+              'L${s?.level.levelId} ${s?.phase.name}  '
               '${(_sampleFrames / _sampleTime).round()} FPS\n'
               'phase ${s?.remaining.toStringAsFixed(1)}s  '
               'answer ${s?.answerElapsed.toStringAsFixed(1)}s',
@@ -222,7 +223,10 @@ class EchoGame extends FlameGame<World> {
         );
     }
     if (GameConfig.debugTools && showHitboxes && _diagnostics != null) {
-      canvas.drawRect(Rect.fromLTWH(4, 4, 392, _diagnostics!.height + 8), Paint()..color = const Color(0xcc101717));
+      canvas.drawRect(
+        Rect.fromLTWH(4, 4, 392, _diagnostics!.height + 8),
+        Paint()..color = const Color(0xcc101717),
+      );
       _diagnostics!.paint(canvas, const Offset(8, 8));
     }
     canvas.restore();
