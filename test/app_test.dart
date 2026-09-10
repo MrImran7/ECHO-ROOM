@@ -8,6 +8,7 @@ import 'package:echo_room/game/session_controller.dart';
 import 'package:echo_room/game/session.dart';
 import 'package:echo_room/game/echo_game.dart';
 import 'package:echo_room/services/audio_service.dart';
+import 'package:echo_room/screens/result_screen.dart';
 import 'package:echo_room/storage/progress_repository.dart';
 
 import 'test_support.dart';
@@ -71,11 +72,23 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
       expect(find.text('✓ FOUND IT!'), findsOneWidget);
+      container.read(sessionProvider.notifier).tick(s.duration - s.phaseElapsed);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      await tester.pump(const Duration(seconds: 2));
+      expect(find.byType(ResultScreen), findsNothing);
+      expect(s.phase, GamePhase.won);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
       for (var i = 0; i < 20; i++) {
         await tester.pump(const Duration(milliseconds: 80));
       }
       expect((await repo.load()).highestLevel, 2);
       expect(find.text('ROOM COMPLETE'), findsOneWidget);
+      expect(find.byType(ResultScreen), findsOneWidget);
+      expect(
+        (await repo.load()).completedRuns.where((id) => id == s.runId).length,
+        1,
+      );
       expect(tester.takeException(), isNull);
       await tester.ensureVisible(find.text('NEXT ROOM'));
       await tester.pump();

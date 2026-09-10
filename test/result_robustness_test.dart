@@ -61,7 +61,7 @@ Future<ProviderContainer> showResult(
         builder: (context, child) => MediaQuery(
           data: MediaQuery.of(context).copyWith(
             disableAnimations: true,
-            textScaler: TextScaler.linear(1.3),
+            textScaler: const TextScaler.linear(1.3),
           ),
           child: child!,
         ),
@@ -108,7 +108,7 @@ void main() {
         ).progress;
       }
       // Exercise the maximal award layout alongside a valid full-chapter save.
-      progress = progress.patch({'achievements': []});
+      progress = progress.patch({'achievements': <String>[]});
       final s = session(level: 20, runId: 'room-20');
       win(s);
       final done = completeSession(progress, s, DateTime(2026, 9, 10), 20);
