@@ -1,0 +1,999 @@
+{
+  "schemaVersion": 1,
+  "rooms": [
+    {
+      "id": "apartment",
+      "name": "The Apartment",
+      "objects": [
+        {
+          "id": "window",
+          "art": "window",
+          "x": 0.77,
+          "y": 0.24,
+          "width": 0.29,
+          "height": 0.32,
+          "z": 0
+        },
+        {
+          "id": "painting",
+          "art": "painting",
+          "x": 0.31,
+          "y": 0.235,
+          "width": 0.225,
+          "height": 0.225,
+          "z": 0
+        },
+        {
+          "id": "clock",
+          "art": "clock",
+          "x": 0.55,
+          "y": 0.11,
+          "width": 0.12,
+          "height": 0.11,
+          "z": 0
+        },
+        {
+          "id": "mirror",
+          "art": "mirror",
+          "x": 0.095,
+          "y": 0.23,
+          "width": 0.12,
+          "height": 0.24,
+          "z": 0
+        },
+        {
+          "id": "shelf",
+          "art": "shelf",
+          "x": 0.41,
+          "y": 0.435,
+          "width": 0.61,
+          "height": 0.035,
+          "z": 0
+        },
+        {
+          "id": "light",
+          "art": "light",
+          "x": 0.87,
+          "y": 0.58,
+          "width": 0.24,
+          "height": 0.33,
+          "z": 0
+        },
+        {
+          "id": "shadow",
+          "art": "shadow",
+          "x": 0.845,
+          "y": 0.855,
+          "width": 0.19,
+          "height": 0.14,
+          "z": 0
+        },
+        {
+          "id": "sofa",
+          "art": "sofa",
+          "x": 0.38,
+          "y": 0.645,
+          "width": 0.53,
+          "height": 0.26,
+          "z": 0,
+          "color": 4289888089
+        },
+        {
+          "id": "lamp",
+          "art": "lamp",
+          "x": 0.85,
+          "y": 0.57,
+          "width": 0.17,
+          "height": 0.34,
+          "z": 1
+        },
+        {
+          "id": "plant",
+          "art": "plant",
+          "x": 0.1,
+          "y": 0.58,
+          "width": 0.16,
+          "height": 0.25,
+          "z": 1,
+          "color": 4290609243
+        },
+        {
+          "id": "chair",
+          "art": "chair",
+          "x": 0.91,
+          "y": 0.755,
+          "width": 0.14,
+          "height": 0.2,
+          "z": 1,
+          "color": 4285300849
+        },
+        {
+          "id": "cushion",
+          "art": "cushion",
+          "x": 0.31,
+          "y": 0.6,
+          "width": 0.105,
+          "height": 0.085,
+          "z": 2,
+          "color": 4283524185,
+          "rotation": -0.13
+        },
+        {
+          "id": "table",
+          "art": "table",
+          "x": 0.47,
+          "y": 0.845,
+          "width": 0.39,
+          "height": 0.21,
+          "z": 2
+        },
+        {
+          "id": "book1",
+          "art": "book",
+          "x": 0.17,
+          "y": 0.386,
+          "width": 0.044,
+          "height": 0.064,
+          "z": 3,
+          "color": 4291665254
+        },
+        {
+          "id": "book2",
+          "art": "book",
+          "x": 0.23,
+          "y": 0.386,
+          "width": 0.044,
+          "height": 0.064,
+          "z": 3,
+          "color": 4286988085
+        },
+        {
+          "id": "book3",
+          "art": "book",
+          "x": 0.29,
+          "y": 0.386,
+          "width": 0.044,
+          "height": 0.064,
+          "z": 3,
+          "color": 4289901974
+        },
+        {
+          "id": "vase1",
+          "art": "vase",
+          "x": 0.385,
+          "y": 0.387,
+          "width": 0.05,
+          "height": 0.067,
+          "z": 3,
+          "color": 4290413419
+        },
+        {
+          "id": "vase2",
+          "art": "vase",
+          "x": 0.515,
+          "y": 0.387,
+          "width": 0.05,
+          "height": 0.067,
+          "z": 3,
+          "color": 4291541912
+        },
+        {
+          "id": "vase3",
+          "art": "vase",
+          "x": 0.645,
+          "y": 0.387,
+          "width": 0.05,
+          "height": 0.067,
+          "z": 3,
+          "color": 4287800211
+        },
+        {
+          "id": "cup",
+          "art": "cup",
+          "x": 0.42,
+          "y": 0.78,
+          "width": 0.065,
+          "height": 0.065,
+          "z": 4,
+          "color": 4285763461
+        },
+        {
+          "id": "note",
+          "art": "note",
+          "x": 0.56,
+          "y": 0.801,
+          "width": 0.08,
+          "height": 0.052,
+          "z": 4,
+          "text": "21",
+          "rotation": -0.1
+        },
+        {
+          "id": "key",
+          "art": "key",
+          "x": 0.64,
+          "y": 0.924,
+          "width": 0.06,
+          "height": 0.042,
+          "z": 4
+        },
+        {
+          "id": "oldBook",
+          "art": "book",
+          "x": 0.21,
+          "y": 0.822,
+          "width": 0.06,
+          "height": 0.065,
+          "z": 4,
+          "visible": false,
+          "color": 4286988085,
+          "rotation": 1.57
+        }
+      ]
+    },
+    {
+      "id": "apartment_matching",
+      "name": "The Apartment",
+      "objects": [
+        {
+          "id": "window",
+          "art": "window",
+          "x": 0.77,
+          "y": 0.24,
+          "width": 0.29,
+          "height": 0.32,
+          "z": 0
+        },
+        {
+          "id": "painting",
+          "art": "painting",
+          "x": 0.31,
+          "y": 0.235,
+          "width": 0.225,
+          "height": 0.225,
+          "z": 0
+        },
+        {
+          "id": "clock",
+          "art": "clock",
+          "x": 0.55,
+          "y": 0.11,
+          "width": 0.12,
+          "height": 0.11,
+          "z": 0
+        },
+        {
+          "id": "mirror",
+          "art": "mirror",
+          "x": 0.095,
+          "y": 0.23,
+          "width": 0.12,
+          "height": 0.24,
+          "z": 0
+        },
+        {
+          "id": "shelf",
+          "art": "shelf",
+          "x": 0.41,
+          "y": 0.435,
+          "width": 0.61,
+          "height": 0.035,
+          "z": 0
+        },
+        {
+          "id": "light",
+          "art": "light",
+          "x": 0.87,
+          "y": 0.58,
+          "width": 0.24,
+          "height": 0.33,
+          "z": 0
+        },
+        {
+          "id": "shadow",
+          "art": "shadow",
+          "x": 0.845,
+          "y": 0.855,
+          "width": 0.19,
+          "height": 0.14,
+          "z": 0
+        },
+        {
+          "id": "sofa",
+          "art": "sofa",
+          "x": 0.38,
+          "y": 0.645,
+          "width": 0.53,
+          "height": 0.26,
+          "z": 0,
+          "color": 4289888089
+        },
+        {
+          "id": "lamp",
+          "art": "lamp",
+          "x": 0.85,
+          "y": 0.57,
+          "width": 0.17,
+          "height": 0.34,
+          "z": 1
+        },
+        {
+          "id": "plant",
+          "art": "plant",
+          "x": 0.1,
+          "y": 0.58,
+          "width": 0.16,
+          "height": 0.25,
+          "z": 1,
+          "color": 4290609243
+        },
+        {
+          "id": "chair",
+          "art": "chair",
+          "x": 0.91,
+          "y": 0.755,
+          "width": 0.14,
+          "height": 0.2,
+          "z": 1,
+          "color": 4285300849
+        },
+        {
+          "id": "cushion",
+          "art": "cushion",
+          "x": 0.31,
+          "y": 0.6,
+          "width": 0.105,
+          "height": 0.085,
+          "z": 2,
+          "color": 4283524185,
+          "rotation": -0.13
+        },
+        {
+          "id": "table",
+          "art": "table",
+          "x": 0.47,
+          "y": 0.845,
+          "width": 0.39,
+          "height": 0.21,
+          "z": 2
+        },
+        {
+          "id": "book1",
+          "art": "book",
+          "x": 0.17,
+          "y": 0.386,
+          "width": 0.044,
+          "height": 0.064,
+          "z": 3,
+          "color": 4291665254
+        },
+        {
+          "id": "book2",
+          "art": "book",
+          "x": 0.23,
+          "y": 0.386,
+          "width": 0.044,
+          "height": 0.064,
+          "z": 3,
+          "color": 4286988085
+        },
+        {
+          "id": "book3",
+          "art": "book",
+          "x": 0.29,
+          "y": 0.386,
+          "width": 0.044,
+          "height": 0.064,
+          "z": 3,
+          "color": 4289901974
+        },
+        {
+          "id": "vase1",
+          "art": "vase",
+          "x": 0.385,
+          "y": 0.387,
+          "width": 0.05,
+          "height": 0.067,
+          "z": 3,
+          "color": 4291541912
+        },
+        {
+          "id": "vase2",
+          "art": "vase",
+          "x": 0.515,
+          "y": 0.387,
+          "width": 0.05,
+          "height": 0.067,
+          "z": 3,
+          "color": 4291541912
+        },
+        {
+          "id": "vase3",
+          "art": "vase",
+          "x": 0.645,
+          "y": 0.387,
+          "width": 0.05,
+          "height": 0.067,
+          "z": 3,
+          "color": 4291541912
+        },
+        {
+          "id": "cup",
+          "art": "cup",
+          "x": 0.42,
+          "y": 0.78,
+          "width": 0.065,
+          "height": 0.065,
+          "z": 4,
+          "color": 4285763461
+        },
+        {
+          "id": "note",
+          "art": "note",
+          "x": 0.56,
+          "y": 0.801,
+          "width": 0.08,
+          "height": 0.052,
+          "z": 4,
+          "text": "21",
+          "rotation": -0.1
+        },
+        {
+          "id": "key",
+          "art": "key",
+          "x": 0.64,
+          "y": 0.924,
+          "width": 0.06,
+          "height": 0.042,
+          "z": 4
+        },
+        {
+          "id": "oldBook",
+          "art": "book",
+          "x": 0.21,
+          "y": 0.822,
+          "width": 0.06,
+          "height": 0.065,
+          "z": 4,
+          "visible": false,
+          "color": 4286988085,
+          "rotation": 1.57
+        }
+      ]
+    }
+  ],
+  "levels": [
+    {
+      "levelId": 1,
+      "roomId": "apartment",
+      "difficulty": "easy",
+      "observationDuration": 7,
+      "answerDuration": 7,
+      "attempts": 3,
+      "changes": [
+        {
+          "type": "OBJECT_REMOVED",
+          "objectId": "lamp",
+          "values": {}
+        }
+      ],
+      "hints": [
+        "Look to the right.",
+        "Near the warm light.",
+        "The floor lamp is missing."
+      ]
+    },
+    {
+      "levelId": 2,
+      "roomId": "apartment",
+      "difficulty": "easy",
+      "observationDuration": 7,
+      "answerDuration": 7,
+      "attempts": 3,
+      "changes": [
+        {
+          "type": "OBJECT_MOVED",
+          "objectId": "chair",
+          "values": {
+            "x": 0.75
+          }
+        }
+      ],
+      "hints": [
+        "Look near the floor.",
+        "Check the right-hand seat.",
+        "The chair moved."
+      ],
+      "storyText": "",
+      "collectibleId": null
+    },
+    {
+      "levelId": 3,
+      "roomId": "apartment",
+      "difficulty": "easy",
+      "observationDuration": 7,
+      "answerDuration": 7,
+      "attempts": 3,
+      "changes": [
+        {
+          "type": "OBJECT_MOVED",
+          "objectId": "plant",
+          "values": {
+            "x": 0.14,
+            "y": 0.69
+          }
+        }
+      ],
+      "hints": [
+        "Look on the left.",
+        "Follow the leaves.",
+        "The plant moved closer to you."
+      ],
+      "storyText": "",
+      "collectibleId": null
+    },
+    {
+      "levelId": 4,
+      "roomId": "apartment",
+      "difficulty": "easy",
+      "observationDuration": 7,
+      "answerDuration": 7,
+      "attempts": 3,
+      "changes": [
+        {
+          "type": "IMAGE_CHANGED",
+          "objectId": "painting",
+          "values": {
+            "variant": "moon"
+          }
+        }
+      ],
+      "hints": [
+        "Look above the sofa.",
+        "Look inside the wooden frame.",
+        "The sun became a moon."
+      ],
+      "storyText": "",
+      "collectibleId": null
+    },
+    {
+      "levelId": 5,
+      "roomId": "apartment",
+      "difficulty": "easy",
+      "observationDuration": 7,
+      "answerDuration": 7,
+      "attempts": 3,
+      "changes": [
+        {
+          "type": "COLOR_CHANGED",
+          "objectId": "cup",
+          "values": {
+            "color": 4290340943,
+            "variant": "striped"
+          }
+        }
+      ],
+      "hints": [
+        "Look near the table.",
+        "Check the little drink.",
+        "The cup is orange and striped."
+      ],
+      "storyText": "You\u2019ve seen this room before.",
+      "collectibleId": "brass_key"
+    },
+    {
+      "levelId": 6,
+      "roomId": "apartment",
+      "difficulty": "medium",
+      "observationDuration": 7,
+      "answerDuration": 6,
+      "attempts": 2,
+      "changes": [
+        {
+          "type": "STATE_CHANGED",
+          "objectId": "clock",
+          "values": {
+            "variant": "late"
+          }
+        }
+      ],
+      "hints": [
+        "Look near the ceiling.",
+        "Time looks different.",
+        "The clock hand moved."
+      ],
+      "storyText": "",
+      "collectibleId": null
+    },
+    {
+      "levelId": 7,
+      "roomId": "apartment",
+      "difficulty": "medium",
+      "observationDuration": 7,
+      "answerDuration": 6,
+      "attempts": 2,
+      "changes": [
+        {
+          "type": "OBJECT_REMOVED",
+          "objectId": "book2",
+          "values": {}
+        }
+      ],
+      "hints": [
+        "Look along the shelf.",
+        "Check the books.",
+        "The red book disappeared."
+      ],
+      "storyText": "",
+      "collectibleId": null
+    },
+    {
+      "levelId": 8,
+      "roomId": "apartment",
+      "difficulty": "medium",
+      "observationDuration": 7,
+      "answerDuration": 6,
+      "attempts": 2,
+      "changes": [
+        {
+          "type": "OBJECT_ROTATED",
+          "objectId": "cushion",
+          "values": {
+            "rotation": 0.65
+          }
+        }
+      ],
+      "hints": [
+        "Look at the sofa.",
+        "Check the green cushion.",
+        "The cushion turned."
+      ],
+      "storyText": "",
+      "collectibleId": null
+    },
+    {
+      "levelId": 9,
+      "roomId": "apartment",
+      "difficulty": "medium",
+      "observationDuration": 7,
+      "answerDuration": 6,
+      "attempts": 2,
+      "changes": [
+        {
+          "type": "OBJECT_MOVED",
+          "objectId": "vase1",
+          "values": {
+            "x": 0.645
+          }
+        },
+        {
+          "type": "OBJECT_MOVED",
+          "objectId": "vase3",
+          "values": {
+            "x": 0.385
+          }
+        }
+      ],
+      "hints": [
+        "Look along the shelf.",
+        "Compare the two end vases.",
+        "The end vases swapped places."
+      ],
+      "storyText": "",
+      "collectibleId": null
+    },
+    {
+      "levelId": 10,
+      "roomId": "apartment",
+      "difficulty": "medium",
+      "observationDuration": 7,
+      "answerDuration": 6,
+      "attempts": 2,
+      "changes": [
+        {
+          "type": "IMAGE_CHANGED",
+          "objectId": "painting",
+          "values": {
+            "variant": "inverted"
+          }
+        }
+      ],
+      "hints": [
+        "Look at the wall.",
+        "Compare the painted hills.",
+        "The hill in the painting changed."
+      ],
+      "storyText": "But you\u2019ve never been here.",
+      "collectibleId": "red_book"
+    },
+    {
+      "levelId": 11,
+      "roomId": "apartment",
+      "difficulty": "hard",
+      "observationDuration": 9,
+      "answerDuration": 8,
+      "attempts": 2,
+      "changes": [
+        {
+          "type": "OBJECT_REMOVED",
+          "objectId": "key",
+          "values": {}
+        }
+      ],
+      "hints": [
+        "Look low in the room.",
+        "Look beside the rug.",
+        "The brass key disappeared."
+      ],
+      "storyText": "",
+      "collectibleId": null
+    },
+    {
+      "levelId": 12,
+      "roomId": "apartment",
+      "difficulty": "hard",
+      "observationDuration": 9,
+      "answerDuration": 8,
+      "attempts": 2,
+      "changes": [
+        {
+          "type": "STATE_CHANGED",
+          "objectId": "shadow",
+          "values": {
+            "variant": "left"
+          }
+        }
+      ],
+      "hints": [
+        "Look below the lamp.",
+        "Which way does the shadow fall?",
+        "The floor shadow points the other way."
+      ],
+      "storyText": "",
+      "collectibleId": null
+    },
+    {
+      "levelId": 13,
+      "roomId": "apartment",
+      "difficulty": "hard",
+      "observationDuration": 9,
+      "answerDuration": 8,
+      "attempts": 2,
+      "changes": [
+        {
+          "type": "OBJECT_RESIZED",
+          "objectId": "vase3",
+          "values": {
+            "scale": 1.35
+          }
+        }
+      ],
+      "hints": [
+        "Look at the shelf.",
+        "Compare the ceramic objects.",
+        "The right-hand vase grew."
+      ],
+      "storyText": "",
+      "collectibleId": null
+    },
+    {
+      "levelId": 14,
+      "roomId": "apartment",
+      "difficulty": "hard",
+      "observationDuration": 9,
+      "answerDuration": 8,
+      "attempts": 2,
+      "changes": [
+        {
+          "type": "STATE_CHANGED",
+          "objectId": "mirror",
+          "values": {
+            "variant": "other"
+          }
+        }
+      ],
+      "hints": [
+        "Look at the left wall.",
+        "Look inside the small mirror.",
+        "The reflected vase moved."
+      ],
+      "storyText": "",
+      "collectibleId": null
+    },
+    {
+      "levelId": 15,
+      "roomId": "apartment",
+      "difficulty": "hard",
+      "observationDuration": 9,
+      "answerDuration": 8,
+      "attempts": 2,
+      "changes": [
+        {
+          "type": "TEXT_CHANGED",
+          "objectId": "note",
+          "values": {
+            "text": "12"
+          }
+        }
+      ],
+      "hints": [
+        "Look at the table.",
+        "Check the paper.",
+        "21 became 12."
+      ],
+      "storyText": "Someone else is changing the rooms.",
+      "collectibleId": "note_21"
+    },
+    {
+      "levelId": 16,
+      "roomId": "apartment",
+      "difficulty": "very hard",
+      "observationDuration": 9,
+      "answerDuration": 8,
+      "attempts": 2,
+      "changes": [
+        {
+          "type": "STATE_CHANGED",
+          "objectId": "mirror",
+          "values": {
+            "variant": "visitor"
+          }
+        }
+      ],
+      "hints": [
+        "Look at the left wall.",
+        "Look inside the reflection.",
+        "A silhouette appeared in the mirror."
+      ],
+      "storyText": "",
+      "collectibleId": null
+    },
+    {
+      "levelId": 17,
+      "roomId": "apartment",
+      "difficulty": "very hard",
+      "observationDuration": 9,
+      "answerDuration": 8,
+      "attempts": 2,
+      "changes": [
+        {
+          "type": "OBJECT_ADDED",
+          "objectId": "oldBook",
+          "values": {}
+        }
+      ],
+      "hints": [
+        "Look beside the table.",
+        "Have you seen this red object before?",
+        "The red book appeared on the floor."
+      ],
+      "storyText": "",
+      "collectibleId": null
+    },
+    {
+      "levelId": 18,
+      "roomId": "apartment",
+      "difficulty": "very hard",
+      "observationDuration": 9,
+      "answerDuration": 8,
+      "attempts": 2,
+      "changes": [
+        {
+          "type": "STATE_CHANGED",
+          "objectId": "light",
+          "values": {
+            "variant": "dim"
+          }
+        }
+      ],
+      "hints": [
+        "Look around the lamp.",
+        "Compare its pool of light.",
+        "The warm light on the wall dimmed."
+      ],
+      "storyText": "",
+      "collectibleId": null
+    },
+    {
+      "levelId": 19,
+      "roomId": "apartment_matching",
+      "difficulty": "very hard",
+      "observationDuration": 9,
+      "answerDuration": 8,
+      "attempts": 2,
+      "changes": [
+        {
+          "type": "STATE_CHANGED",
+          "objectId": "vase2",
+          "values": {
+            "variant": "marked"
+          }
+        }
+      ],
+      "hints": [
+        "Look along the shelf.",
+        "Check the middle vase.",
+        "The middle vase gained a stripe."
+      ],
+      "storyText": "",
+      "collectibleId": null
+    },
+    {
+      "levelId": 20,
+      "roomId": "apartment",
+      "difficulty": "very hard",
+      "observationDuration": 9,
+      "answerDuration": 8,
+      "attempts": 2,
+      "changes": [
+        {
+          "type": "STATE_CHANGED",
+          "objectId": "clock",
+          "values": {
+            "variant": "impossible"
+          }
+        }
+      ],
+      "hints": [
+        "Look near the ceiling.",
+        "Count the clock hands.",
+        "The clock has an impossible extra hour hand."
+      ],
+      "storyText": "They know you\u2019re watching.",
+      "collectibleId": "mirror"
+    }
+  ],
+  "chapters": [
+    {
+      "id": 1,
+      "title": "THE APARTMENT",
+      "available": true,
+      "levelIds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20
+      ]
+    },
+    {
+      "id": 2,
+      "title": "THE HOTEL",
+      "available": false,
+      "levelIds": []
+    },
+    {
+      "id": 3,
+      "title": "THE LABORATORY",
+      "available": false,
+      "levelIds": []
+    },
+    {
+      "id": 4,
+      "title": "THE TRAIN",
+      "available": false,
+      "levelIds": []
+    },
+    {
+      "id": 5,
+      "title": "THE IMPOSSIBLE ROOM",
+      "available": false,
+      "levelIds": []
+    }
+  ]
+}
