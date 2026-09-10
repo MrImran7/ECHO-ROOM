@@ -29,6 +29,7 @@ class EchoGame extends FlameGame<World> {
   bool showHitboxes;
   bool reduceMotion = false;
   double _time = 0;
+  ui.Picture? _background;
   @override
   Color backgroundColor() => const Color(0xff354c45);
   @override
@@ -48,6 +49,9 @@ class EchoGame extends FlameGame<World> {
         art.images[path] = (await codec.getNextFrame()).image;
         codec.dispose();
       }
+      final recorder = ui.PictureRecorder();
+      art.background(Canvas(recorder));
+      _background = recorder.endRecording();
     } catch (_) {
       for (final image in art.images.values) {
         image.dispose();
@@ -75,7 +79,12 @@ class EchoGame extends FlameGame<World> {
     canvas.save();
     canvas.scale(size.x / 400, size.y / 440);
     canvas.clipRect(const Rect.fromLTWH(0, 0, 400, 440));
-    art.background(canvas);
+    final background = _background;
+    if (background != null) {
+      canvas.drawPicture(background);
+    } else {
+      art.background(canvas);
+    }
     final s = session();
     final objects = s?.visibleRoom.objects ?? room.objects;
     // Catalog validates stable z-order, so no per-frame sorting is needed.
@@ -186,6 +195,8 @@ class EchoGame extends FlameGame<World> {
 
   @override
   void onRemove() {
+    _background?.dispose();
+    _background = null;
     for (final image in art.images.values) {
       image.dispose();
     }

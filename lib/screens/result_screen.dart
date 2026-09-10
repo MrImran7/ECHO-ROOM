@@ -28,7 +28,7 @@ class ResultScreen extends ConsumerStatefulWidget {
 }
 
 class _ResultScreenState extends ConsumerState<ResultScreen> {
-  late final HapticsService _haptics = ref.read(hapticsProvider);
+  late final HapticsService _haptics;
   @override
   void dispose() {
     _haptics.cancelPending();
@@ -37,6 +37,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
   @override
   void initState() {
     super.initState();
+    _haptics = ref.read(hapticsProvider);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       final s = widget.session;

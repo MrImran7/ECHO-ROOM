@@ -105,7 +105,7 @@ class _GameViewportState extends State<GameViewport>
               _game.hitPadding,
               );
             },
-            child: RepaintBoundary(child: GameWidget<EchoGame>(
+            child: GameWidget<EchoGame>(
               key: ObjectKey(_game),
               game: _game,
               loadingBuilder: (_) => const Center(
@@ -142,7 +142,7 @@ class _GameViewportState extends State<GameViewport>
                   ),
                 ),
               ),
-            )),
+            ),
           ),
         );
       },

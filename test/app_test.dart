@@ -13,7 +13,7 @@ import 'package:echo_room/storage/progress_repository.dart';
 import 'test_support.dart';
 
 void main() {
-  testWidgets('home, real Flame room, correct tap and persisted result', (
+  testWidgets('home, lifecycle pause, real Flame room, correct tap and next room', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(430, 932);
@@ -41,10 +41,24 @@ void main() {
     await tester.ensureVisible(find.text('PLAY'));
     await tester.tap(find.text('PLAY'));
     await tester.pump();
-    for (var i = 0; i < 170; i++) {
+    for (var i = 0; i < 60; i++) {
       await tester.pump(const Duration(milliseconds: 80));
     }
     final s = container.read(sessionProvider.notifier).game!;
+    expect(s.phase, GamePhase.observing);
+    final observationElapsed = s.phaseElapsed;
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+    await tester.pump(const Duration(seconds: 10));
+    expect(s.paused, true);
+    expect(s.phaseElapsed, observationElapsed);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    await tester.pump();
+    expect(s.paused, true);
+    await tester.tap(find.text('RESUME'));
+    await tester.pump();
+    for (var i = 0; i < 170 && s.phase != GamePhase.answering; i++) {
+      await tester.pump(const Duration(milliseconds: 80));
+    }
     expect(s.phase, GamePhase.answering);
     final gameRect = tester.getRect(
       find.byWidgetPredicate((widget) => widget is GameWidget<EchoGame>),
