@@ -78,6 +78,7 @@ void main() {
       expect(find.text('ROOM COMPLETE'), findsOneWidget);
       expect(tester.takeException(), isNull);
       await tester.ensureVisible(find.text('NEXT ROOM'));
+      await tester.pump();
       await tester.tap(find.text('NEXT ROOM'));
       for (var i = 0; i < 5; i++) {
         await tester.pump(const Duration(milliseconds: 80));

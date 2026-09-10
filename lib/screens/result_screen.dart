@@ -157,6 +157,30 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
               ],
             ),
           ),
+          const SizedBox(height: 26),
+          if (!daily && won && s.level.levelId < count) ...[
+            ActionButton(
+              'NEXT ROOM',
+              icon: Icons.arrow_forward,
+              onPressed: () => _play(s.level.levelId + 1),
+            ),
+            const SizedBox(height: 10),
+          ],
+          if (!daily) ...[
+            ActionButton(
+              won ? 'REPLAY' : 'TRY AGAIN',
+              secondary: won,
+              onPressed: () => _play(s.level.levelId),
+            ),
+            const SizedBox(height: 10),
+          ],
+          ActionButton(
+            'HOME',
+            secondary: true,
+            onPressed: () async {
+              Navigator.of(context).pop();
+            },
+          ),
           if (daily) ...[
             const SizedBox(height: 16),
             Row(
@@ -232,30 +256,6 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
               ),
             ),
           ],
-          const SizedBox(height: 26),
-          if (!daily && won && s.level.levelId < count) ...[
-            ActionButton(
-              'NEXT ROOM',
-              icon: Icons.arrow_forward,
-              onPressed: () => _play(s.level.levelId + 1),
-            ),
-            const SizedBox(height: 10),
-          ],
-          if (!daily) ...[
-            ActionButton(
-              won ? 'REPLAY' : 'TRY AGAIN',
-              secondary: won,
-              onPressed: () => _play(s.level.levelId),
-            ),
-            const SizedBox(height: 10),
-          ],
-          ActionButton(
-            'HOME',
-            secondary: true,
-            onPressed: () async {
-              Navigator.of(context).pop();
-            },
-          ),
           if (won && s.level.levelId == count && !daily) ...[
             const SizedBox(height: 16),
             const Text(
