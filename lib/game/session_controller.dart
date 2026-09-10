@@ -19,7 +19,8 @@ class SessionController extends Notifier<int> {
   Completion? completion;
   Completion? _pendingCompletion;
   String? error;
-  bool _finishing = false, _starting = false;
+  bool _finishing = false, _starting = false, _hinting = false;
+  bool get hinting => _hinting;
   double _hudElapsed = 0, _checkpointElapsed = 0;
   int _lastCountdown = 4;
   bool _disposed = false;
@@ -184,6 +185,17 @@ class SessionController extends Notifier<int> {
   }
 
   Future<void> hint() async {
+    if (_hinting) return;
+    _hinting = true;
+    try {
+      await _hint();
+    } finally {
+      _hinting = false;
+      _notify();
+    }
+  }
+
+  Future<void> _hint() async {
     final s = game, p = ref.read(profileProvider);
     if (s == null || s.hints >= 3 || s.dailyDate != null) return;
     final cost = GameConfig.hintCosts[s.hints];
@@ -193,6 +205,7 @@ class SessionController extends Notifier<int> {
       return;
     }
     if (!s.useHint()) return;
+    _notify();
     error = null;
     ref.read(analyticsProvider).log('hint_used', {
       'level': s.level.levelId,
@@ -228,7 +241,7 @@ class SessionController extends Notifier<int> {
 
   void pause() {
     final s = game;
-    if (s == null || s.finished) return;
+    if (s == null || s.finished || s.paused) return;
     s.pause();
     _notify();
     unawaited(checkpoint());

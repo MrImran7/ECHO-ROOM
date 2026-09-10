@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:echo_room/app/providers.dart';
@@ -87,4 +89,34 @@ void main() {
       expect(saved.activeSession!['hints'], 1);
     },
   );
+  test('rapid hint taps charge once while saving is pending', () async {
+    final repo = HintRepository();
+    final container = await ready(repo);
+    addTearDown(container.dispose);
+    final controller = container.read(sessionProvider.notifier);
+    await controller.start(1);
+    reachAnswer(controller.game!);
+    final balance = container.read(profileProvider).hints;
+    repo.gate = Completer<void>();
+    final first = controller.hint();
+    await controller.hint();
+    expect(controller.game!.hints, 1);
+    expect(controller.hinting, true);
+    expect(container.read(profileProvider).hints, balance - 1);
+    repo.gate!.complete();
+    await first;
+    expect(controller.hinting, false);
+    await controller.hint();
+    expect(controller.game!.hints, 2);
+  });
+
+}
+
+class HintRepository extends MemoryProgressRepository {
+  Completer<void>? gate;
+  @override
+  Future<void> save(Progress progress) async {
+    await gate?.future;
+    await super.save(progress);
+  }
 }

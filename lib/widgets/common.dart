@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
 import '../app/theme.dart';
+import '../core/config.dart';
 import '../game/room_art.dart';
 import '../models/scene.dart';
 
@@ -85,7 +86,7 @@ class _ActionButtonState extends State<ActionButton> {
       scale: _states.value.contains(WidgetState.pressed) ? .98 : 1,
       duration: MediaQuery.disableAnimationsOf(context)
           ? Duration.zero
-          : const Duration(milliseconds: 120),
+          : const Duration(milliseconds: GameConfig.buttonPressMilliseconds),
       curve: Curves.easeOut,
       child: SizedBox(
         width: double.infinity,

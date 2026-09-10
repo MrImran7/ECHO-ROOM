@@ -25,6 +25,12 @@ abstract final class GameConfig {
   static const minimumTouchSize = 44.0;
   static const hudInterval = .08;
   static const checkpointInterval = 1.0;
+  static const buttonPressMilliseconds = 120;
+  static const correctPulseSeconds = .3;
+  static const wrongShakeSeconds = .22;
+  static const starRevealMilliseconds = 300;
+  static const hapticPatternGapMilliseconds = 90;
+  static const diagnosticsInterval = .25;
   static const scoreAnimationMilliseconds = 350;
   static const transitionMilliseconds = 180;
   static const tapCooldown = .32;

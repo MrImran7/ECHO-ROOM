@@ -29,6 +29,7 @@ class ResultScreen extends ConsumerStatefulWidget {
 
 class _ResultScreenState extends ConsumerState<ResultScreen> {
   late final HapticsService _haptics;
+  bool _leaving = false;
   @override
   void dispose() {
     _haptics.cancelPending();
@@ -62,11 +63,27 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
   }
 
   Future<void> _play(int id) async {
-    await ref.read(sessionProvider.notifier).start(id);
-    if (!mounted) return;
-    await Navigator.of(context).pushReplacement<void, void>(
-      MaterialPageRoute(builder: (_) => const GameplayScreen()),
-    );
+    if (_leaving) return;
+    setState(() => _leaving = true);
+    _haptics.cancelPending();
+    try {
+      await ref.read(sessionProvider.notifier).start(id);
+      if (!mounted) return;
+      // Keep the lock through route replacement; other result actions stay off.
+      unawaited(Navigator.of(context).pushReplacement<void, void>(
+        MaterialPageRoute(builder: (_) => const GameplayScreen()),
+      ));
+    } catch (_) {
+      if (mounted) setState(() => _leaving = false);
+      rethrow;
+    }
+  }
+
+  Future<void> _home() async {
+    if (_leaving) return;
+    setState(() => _leaving = true);
+    _haptics.cancelPending();
+    Navigator.of(context).pop();
   }
 
   @override
@@ -76,7 +93,9 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
         p = ref.watch(profileProvider);
     final won = s.phase == GamePhase.won, daily = s.dailyDate != null;
     final count = ref.read(catalogProvider).requireValue.levels.length;
-    return Scaffold(
+    return PopScope<void>(
+      canPop: !_leaving,
+      child: Scaffold(
       appBar: AppBar(title: Text(daily ? 'DAILY ROOM' : 'THE APARTMENT')),
       body: PageBody(
         children: [
@@ -101,7 +120,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
             tween: Tween(begin: .9, end: 1),
             duration: MediaQuery.disableAnimationsOf(context)
                 ? Duration.zero
-                : const Duration(milliseconds: 300),
+                : const Duration(milliseconds: GameConfig.starRevealMilliseconds),
             curve: Curves.easeOutCubic,
             child: Center(child: Stars(done.score.stars, size: 40)),
             builder: (_, value, child) =>
@@ -115,7 +134,9 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                 : const Duration(
                     milliseconds: GameConfig.scoreAnimationMilliseconds,
                   ),
-            builder: (_, value, _) => Text(
+            builder: (_, value, _) => FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
               value.round().toString(),
               textAlign: TextAlign.center,
               style: const TextStyle(
@@ -123,6 +144,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                 fontWeight: FontWeight.w300,
                 color: EchoTheme.cream,
               ),
+            ),
             ),
           ),
           const Eyebrow('POINTS'),
@@ -162,7 +184,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
             ActionButton(
               'NEXT ROOM',
               icon: Icons.arrow_forward,
-              onPressed: () => _play(s.level.levelId + 1),
+              onPressed: _leaving ? null : () => _play(s.level.levelId + 1),
             ),
             const SizedBox(height: 10),
           ],
@@ -170,16 +192,14 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
             ActionButton(
               won ? 'REPLAY' : 'TRY AGAIN',
               secondary: won,
-              onPressed: () => _play(s.level.levelId),
+              onPressed: _leaving ? null : () => _play(s.level.levelId),
             ),
             const SizedBox(height: 10),
           ],
           ActionButton(
             'HOME',
             secondary: true,
-            onPressed: () async {
-              Navigator.of(context).pop();
-            },
+            onPressed: _leaving ? null : _home,
           ),
           if (daily) ...[
             const SizedBox(height: 16),
@@ -265,6 +285,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
           ],
         ],
       ),
+    ),
     );
   }
 }

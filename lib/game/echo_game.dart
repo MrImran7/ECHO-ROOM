@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../models/scene.dart';
+import '../core/config.dart';
 import 'room_art.dart';
 import 'feedback_motion.dart';
 import 'session.dart';
@@ -30,6 +31,9 @@ class EchoGame extends FlameGame<World> {
   bool reduceMotion = false;
   double _time = 0;
   ui.Picture? _background;
+  TextPainter? _diagnostics;
+  double _sampleTime = 0;
+  int _sampleFrames = 0;
   @override
   Color backgroundColor() => const Color(0xff354c45);
   @override
@@ -71,6 +75,24 @@ class EchoGame extends FlameGame<World> {
     }
     if (!(session()?.paused ?? false)) _time += dt;
     onTick(dt);
+    if (GameConfig.debugTools && showHitboxes && dt > 0 && dt.isFinite) {
+      _sampleTime += dt;
+      _sampleFrames++;
+      if (_sampleTime >= GameConfig.diagnosticsInterval) {
+        final s = session();
+        _diagnostics ??= TextPainter(textDirection: TextDirection.ltr);
+        _diagnostics!.text = TextSpan(
+          text: 'L${s?.level.levelId} ${s?.phase.name}  '
+              '${(_sampleFrames / _sampleTime).round()} FPS\n'
+              'phase ${s?.remaining.toStringAsFixed(1)}s  '
+              'answer ${s?.answerElapsed.toStringAsFixed(1)}s',
+          style: const TextStyle(fontSize: 12, color: Colors.white),
+        );
+        _diagnostics!.layout(maxWidth: 384);
+        _sampleTime = 0;
+        _sampleFrames = 0;
+      }
+    }
   }
 
   @override
@@ -162,7 +184,7 @@ class EchoGame extends FlameGame<World> {
           );
         }
       }
-      if (showHitboxes) {
+      if (GameConfig.debugTools && showHitboxes) {
         for (final region in s.hitTester.regions) {
           final o = region.object, padding = region.padding(hitPadding);
           canvas.save();
@@ -199,11 +221,17 @@ class EchoGame extends FlameGame<World> {
           Paint()..color = Color.fromRGBO(16, 23, 23, darkness),
         );
     }
+    if (GameConfig.debugTools && showHitboxes && _diagnostics != null) {
+      canvas.drawRect(Rect.fromLTWH(4, 4, 392, _diagnostics!.height + 8), Paint()..color = const Color(0xcc101717));
+      _diagnostics!.paint(canvas, const Offset(8, 8));
+    }
     canvas.restore();
   }
 
   @override
   void onRemove() {
+    _diagnostics?.dispose();
+    _diagnostics = null;
     _background?.dispose();
     _background = null;
     for (final image in art.images.values) {

@@ -95,6 +95,8 @@ void main() {
   });
 
   for (final phase in [
+    GamePhase.countdown,
+    GamePhase.flicker,
     GamePhase.observing,
     GamePhase.blackout,
     GamePhase.answering,
@@ -319,4 +321,66 @@ void main() {
       expect(calls.length, 5);
     },
   );
+  test('pause just before timeout preserves the final answer opportunity', () {
+    final s = session();
+    reachAnswer(s);
+    s.advance(s.remaining - .01);
+    s.pause();
+    s.advance(100);
+    s.resume();
+    final lamp = s.original.object('lamp');
+    expect(s.tap(lamp.x, lamp.y), TapResult.correct);
+  });
+
+  test('audio platform failure does not poison future cues or disposal', () async {
+    final channel = FailingChannel();
+    final audio = LocalAudioService(createChannel: () => channel);
+    audio.cue(SoundCue.correct);
+    await flush();
+    channel.fail = false;
+    audio.cue(SoundCue.wrong);
+    await flush();
+    expect(channel.events, contains('play:audio/wrong.wav:0.55'));
+    await audio.dispose();
+  });
+
+  testWidgets('correct haptic replaces a delayed pattern; unavailable platform is harmless', (tester) async {
+    final calls = <Object?>[];
+    var fail = false;
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
+      if (call.method == 'HapticFeedback.vibrate') {
+        if (fail) throw PlatformException(code: 'unavailable');
+        calls.add(call.arguments);
+      }
+      return null;
+    });
+    addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
+    final haptics = HapticsService();
+    final pattern = haptics.celebrate();
+    await tester.pump();
+    await haptics.correct();
+    await tester.pump(const Duration(milliseconds: 100));
+    await pattern;
+    expect(calls, ['HapticFeedbackType.selectionClick', 'HapticFeedbackType.lightImpact']);
+    fail = true;
+    await haptics.wrong();
+    fail = false;
+    haptics.enabled = false;
+    await haptics.correct();
+    expect(calls.length, 2);
+    haptics.enabled = true;
+    await haptics.correct();
+    expect(calls.length, 3);
+    haptics.dispose();
+  });
+
+}
+
+class FailingChannel extends RecordingChannel {
+  bool fail = true;
+  @override
+  Future<void> play(String asset, double volume) async {
+    if (fail) throw PlatformException(code: 'missing_asset');
+    await super.play(asset, volume);
+  }
 }

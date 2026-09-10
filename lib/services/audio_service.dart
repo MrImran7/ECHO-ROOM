@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import '../models/progress.dart';
+import '../core/config.dart';
 
 enum SoundCue {
   menu,
@@ -35,20 +36,21 @@ abstract interface class AudioChannel {
 }
 
 class _PlatformChannel implements AudioChannel {
-  final AudioPlayer _player = AudioPlayer();
+  AudioPlayer? _player;
+  AudioPlayer get _active => _player ??= AudioPlayer();
   @override
   Future<void> play(String asset, double volume) =>
-      _player.play(AssetSource(asset), volume: volume);
+      _active.play(AssetSource(asset), volume: volume);
   @override
-  Future<void> stop() => _player.stop();
+  Future<void> stop() => _player?.stop() ?? Future.value();
   @override
-  Future<void> pause() => _player.pause();
+  Future<void> pause() => _player?.pause() ?? Future.value();
   @override
-  Future<void> resume() => _player.resume();
+  Future<void> resume() => _player?.resume() ?? Future.value();
   @override
-  Future<void> loop() => _player.setReleaseMode(ReleaseMode.loop);
+  Future<void> loop() => _active.setReleaseMode(ReleaseMode.loop);
   @override
-  Future<void> dispose() => _player.dispose();
+  Future<void> dispose() => _player?.dispose() ?? Future.value();
 }
 
 class LocalAudioService implements AudioService {
@@ -187,18 +189,22 @@ class HapticsService {
   }
 
   Future<void> correct() async {
+    cancelPending();
     if (_available) await _safe(HapticFeedback.lightImpact);
   }
 
   Future<void> wrong() async {
+    cancelPending();
     if (_available) await _safe(HapticFeedback.heavyImpact);
   }
 
   Future<void> timeout() async {
+    cancelPending();
     if (_available) await _safe(HapticFeedback.mediumImpact);
   }
 
   Future<void> complete() async {
+    cancelPending();
     if (_available) await _safe(HapticFeedback.selectionClick);
   }
 
@@ -206,7 +212,7 @@ class HapticsService {
     if (!_available) return;
     final generation = ++_generation;
     await _safe(HapticFeedback.selectionClick);
-    await Future<void>.delayed(const Duration(milliseconds: 90));
+    await Future<void>.delayed(const Duration(milliseconds: GameConfig.hapticPatternGapMilliseconds));
     if (_available && generation == _generation)
       await _safe(HapticFeedback.lightImpact);
   }

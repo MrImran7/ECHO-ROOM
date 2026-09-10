@@ -1,16 +1,18 @@
 import 'dart:math' as math;
 
+import '../core/config.dart';
+
 /// Presentation curves use phase time, never a second gameplay clock.
 abstract final class FeedbackMotion {
   static double correctScale(double elapsed, {bool reduced = false}) {
     if (reduced) return 1;
-    final progress = (elapsed / .3).clamp(0.0, 1.0);
+    final progress = (elapsed / GameConfig.correctPulseSeconds).clamp(0.0, 1.0);
     return 1 + .06 * math.sin(progress * math.pi);
   }
 
   static double wrongOffset(double elapsed, {bool reduced = false}) {
     if (reduced) return 0;
-    final progress = (elapsed / .22).clamp(0.0, 1.0);
+    final progress = (elapsed / GameConfig.wrongShakeSeconds).clamp(0.0, 1.0);
     return math.sin(progress * math.pi * 6) * 3 * (1 - progress);
   }
 
