@@ -115,7 +115,8 @@ class RoomArt {
       '0123456',
       '012356',
     ];
-    if (text.length != 2 || text.codeUnits.any((unit) => unit < 48 || unit > 57)) {
+    if (text.length != 2 ||
+        text.codeUnits.any((unit) => unit < 48 || unit > 57)) {
       label(c, text, 50, 20, 39, ink);
       return;
     }
