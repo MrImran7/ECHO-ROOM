@@ -63,6 +63,18 @@ void main() {
     expect((await repo.load()).highestLevel, 2);
     expect(find.text('ROOM COMPLETE'), findsOneWidget);
     expect(tester.takeException(), isNull);
+    await tester.ensureVisible(find.text('NEXT ROOM'));
+    await tester.tap(find.text('NEXT ROOM'));
+    for (var i = 0; i < 5; i++) {
+      await tester.pump(const Duration(milliseconds: 80));
+    }
+    final next = container.read(sessionProvider.notifier).game!;
+    expect(next.level.levelId, 2);
+    expect(identical(next, s), false);
+    expect(next.mistakes, 0);
+    expect(next.hints, 0);
+    expect(s.phase, GamePhase.won);
+    expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
   });
 }

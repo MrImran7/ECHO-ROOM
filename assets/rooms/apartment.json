@@ -225,18 +225,6 @@
           "color": 4287800211
         },
         {
-          "id": "floorBook",
-          "art": "book",
-          "x": 0.1,
-          "y": 0.9,
-          "width": 0.055,
-          "height": 0.08,
-          "z": 3,
-          "color": 4291665254,
-          "rotation": 1.57,
-          "visible": false
-        },
-        {
           "id": "cup",
           "art": "cup",
           "x": 0.42,
@@ -279,6 +267,18 @@
           "visible": false,
           "color": 4286988085,
           "rotation": 1.57
+        },
+        {
+          "id": "floorBook",
+          "art": "book",
+          "x": 0.1,
+          "y": 0.9,
+          "width": 0.055,
+          "height": 0.08,
+          "z": 4,
+          "color": 4291665254,
+          "rotation": 1.57,
+          "visible": false
         }
       ]
     },
@@ -503,18 +503,6 @@
           "color": 4287800211
         },
         {
-          "id": "floorBook",
-          "art": "book",
-          "x": 0.1,
-          "y": 0.9,
-          "width": 0.055,
-          "height": 0.08,
-          "z": 3,
-          "color": 4291665254,
-          "rotation": 1.57,
-          "visible": false
-        },
-        {
           "id": "cup",
           "art": "cup",
           "x": 0.42,
@@ -557,6 +545,18 @@
           "visible": false,
           "color": 4286988085,
           "rotation": 1.57
+        },
+        {
+          "id": "floorBook",
+          "art": "book",
+          "x": 0.1,
+          "y": 0.9,
+          "width": 0.055,
+          "height": 0.08,
+          "z": 4,
+          "color": 4291665254,
+          "rotation": 1.57,
+          "visible": false
         }
       ]
     },
@@ -780,18 +780,6 @@
           "color": 4287800211
         },
         {
-          "id": "floorBook",
-          "art": "book",
-          "x": 0.1,
-          "y": 0.9,
-          "width": 0.055,
-          "height": 0.08,
-          "z": 3,
-          "color": 4291665254,
-          "rotation": 1.57,
-          "visible": false
-        },
-        {
           "id": "cup",
           "art": "cup",
           "x": 0.42,
@@ -832,6 +820,18 @@
           "visible": false,
           "color": 4286988085,
           "rotation": 1.57
+        },
+        {
+          "id": "floorBook",
+          "art": "book",
+          "x": 0.1,
+          "y": 0.9,
+          "width": 0.055,
+          "height": 0.08,
+          "z": 4,
+          "color": 4291665254,
+          "rotation": 1.57,
+          "visible": false
         }
       ]
     },
@@ -1053,17 +1053,6 @@
           "color": 4287800211
         },
         {
-          "id": "floorBook",
-          "art": "book",
-          "x": 0.1,
-          "y": 0.9,
-          "width": 0.055,
-          "height": 0.08,
-          "z": 3,
-          "color": 4291665254,
-          "rotation": 1.57
-        },
-        {
           "id": "cup",
           "art": "cup",
           "x": 0.42,
@@ -1103,6 +1092,17 @@
           "z": 4,
           "visible": false,
           "color": 4286988085,
+          "rotation": 1.57
+        },
+        {
+          "id": "floorBook",
+          "art": "book",
+          "x": 0.1,
+          "y": 0.9,
+          "width": 0.055,
+          "height": 0.08,
+          "z": 4,
+          "color": 4291665254,
           "rotation": 1.57
         }
       ]
@@ -1327,17 +1327,6 @@
           "variant": "default"
         },
         {
-          "id": "floorBook",
-          "art": "book",
-          "x": 0.1,
-          "y": 0.9,
-          "width": 0.055,
-          "height": 0.08,
-          "z": 3,
-          "color": 4291665254,
-          "rotation": 1.57
-        },
-        {
           "id": "cup",
           "art": "cup",
           "x": 0.42,
@@ -1377,6 +1366,17 @@
           "z": 4,
           "visible": false,
           "color": 4286988085,
+          "rotation": 1.57
+        },
+        {
+          "id": "floorBook",
+          "art": "book",
+          "x": 0.1,
+          "y": 0.9,
+          "width": 0.055,
+          "height": 0.08,
+          "z": 4,
+          "color": 4291665254,
           "rotation": 1.57
         }
       ]

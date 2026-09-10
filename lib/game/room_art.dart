@@ -115,7 +115,7 @@ class RoomArt {
       '0123456',
       '012356',
     ];
-    if (text.length != 2 || int.tryParse(text) == null) {
+    if (text.length != 2 || text.codeUnits.any((unit) => unit < 48 || unit > 57)) {
       label(c, text, 50, 20, 39, ink);
       return;
     }
@@ -391,7 +391,7 @@ class RoomArt {
           const Color(0xffdcc598),
         );
         if (o.variant == 'echo') {
-          rect(c, 27, 56, 15, 6, ink, 1);
+          rect(c, 26, 54, 17, 8, ink, 1);
         }
         if (o.variant == 'visitor') {
           oval(c, 58, 33, 16, 16, const Color(0xff314d49));

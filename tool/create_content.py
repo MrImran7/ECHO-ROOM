@@ -41,7 +41,7 @@ objects = [
     obj('oldBook', 'book', .21, .822, .06, .08, z=4, visible=False, color=0xff863f35, rotation=1.57),
     obj('smallFrame', 'painting', .41, .075, .085, .08, z=1),
     obj('calendar', 'note', .965, .52, .055, .075, z=2, text='21'),
-    obj('floorBook', 'book', .10, .90, .055, .08, z=3, color=0xffcd9d66, rotation=1.57),
+    obj('floorBook', 'book', .10, .90, .055, .08, z=4, color=0xffcd9d66, rotation=1.57),
 ]
 # Details arrive between difficulty bands; the main furniture stays in place.
 medium = {'mirror', 'book2', 'vase2'}
