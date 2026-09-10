@@ -20,8 +20,8 @@ jobs:
           cache: true
       - run: python3 -m pip install Pillow
       - run: python3 tool/validate.py
-      - name: Commit formatter output to the gameplay feature branch
-        if: always() && github.event_name == 'push' && github.ref == 'refs/heads/feature/gameplay-core'
+      - name: Commit formatter output to the active feature branch
+        if: always() && github.event_name == 'push' && (github.ref == 'refs/heads/feature/gameplay-core' || github.ref == 'refs/heads/feature/chapter-1')
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
@@ -29,7 +29,7 @@ jobs:
           if [ -f pubspec.lock ]; then git add pubspec.lock; fi
           if ! git diff --cached --quiet; then
             git commit -m 'style: format Dart source and lock resolved dependencies'
-            git push origin HEAD:feature/gameplay-core
+            git push origin "HEAD:${GITHUB_REF_NAME}"
           fi
       - uses: actions/upload-artifact@v4
         if: always()
@@ -40,6 +40,11 @@ jobs:
         with:
           name: echo-room-debug-apk
           path: build/app/outputs/flutter-apk/app-debug.apk
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: chapter-1-scene-review
+          path: build/chapter-review/*.png
   ios:
     runs-on: macos-latest
     steps:
