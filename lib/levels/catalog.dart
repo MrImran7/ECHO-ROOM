@@ -58,13 +58,18 @@ class GameCatalog {
       }
       if (room.objects.map((o) => o.id).toSet().length != room.objects.length)
         throw const FormatException('Duplicate object');
-      final changed = ChangeRegistry().apply(RoomState(room.objects), l.changes);
+      final changed = ChangeRegistry().apply(
+        RoomState(room.objects),
+        l.changes,
+      );
       for (final target in l.targets) {
         final before = room.objects.firstWhere((o) => o.id == target);
         final after = changed.object(target);
         if (jsonEncode(before.toJson()) == jsonEncode(after.toJson()) ||
             (!before.visible && !after.visible)) {
-          throw FormatException('Level ${l.levelId}: $target has no visible change');
+          throw FormatException(
+            'Level ${l.levelId}: $target has no visible change',
+          );
         }
       }
     }

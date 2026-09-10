@@ -103,8 +103,18 @@ class RoomArt {
       [0.0, 0.0, 0.0, 20.0],
       [0.0, 20.0, 20.0, 20.0],
     ];
-    const digits = ['012345', '12', '01643', '01236', '5612',
-      '05632', '054326', '012', '0123456', '012356'];
+    const digits = [
+      '012345',
+      '12',
+      '01643',
+      '01236',
+      '5612',
+      '05632',
+      '054326',
+      '012',
+      '0123456',
+      '012356',
+    ];
     if (text.length != 2 || int.tryParse(text) == null) {
       label(c, text, 50, 20, 39, ink);
       return;
@@ -113,8 +123,15 @@ class RoomArt {
       final x = 22.0 + i * 34;
       for (final segment in digits[int.parse(text[i])].split('')) {
         final stroke = strokes[int.parse(segment)];
-        line(c, x + stroke[0], 18 + stroke[1],
-          x + stroke[2], 18 + stroke[3], ink, 4);
+        line(
+          c,
+          x + stroke[0],
+          18 + stroke[1],
+          x + stroke[2],
+          18 + stroke[3],
+          ink,
+          4,
+        );
       }
     }
   }
