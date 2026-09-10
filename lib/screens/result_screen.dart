@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -26,19 +28,27 @@ class ResultScreen extends ConsumerStatefulWidget {
 }
 
 class _ResultScreenState extends ConsumerState<ResultScreen> {
+  late final HapticsService _haptics = ref.read(hapticsProvider);
+  @override
+  void dispose() {
+    _haptics.cancelPending();
+    super.dispose();
+  }
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       final s = widget.session;
-      ref
-          .read(audioProvider)
-          .cue(
-            s.phase == GamePhase.won && s.level.storyText.isNotEmpty
-                ? SoundCue.mystery
-                : SoundCue.complete,
-          );
+      // One result cue: milestone wins priority over story and completion.
+      // Loss already received its feedback in the session controller.
+      if (s.phase != GamePhase.won) return;
+      final milestone = widget.completion.streakLabel != null ||
+          widget.completion.newAchievements.isNotEmpty;
+      ref.read(audioProvider).cue(milestone ? SoundCue.streak :
+          s.level.storyText.isNotEmpty ? SoundCue.mystery : SoundCue.complete);
+      unawaited(milestone ? _haptics.celebrate() :
+          _haptics.complete());
     });
   }
 
@@ -78,11 +88,18 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
             style: Theme.of(context).textTheme.headlineMedium,
           ),
           const SizedBox(height: 20),
-          Center(child: Stars(done.score.stars, size: 40)),
+          TweenAnimationBuilder<double>(
+            tween: Tween(begin: .9, end: 1),
+            duration: MediaQuery.disableAnimationsOf(context) ? Duration.zero :
+                const Duration(milliseconds: 300),
+            curve: Curves.easeOutCubic,
+            child: Center(child: Stars(done.score.stars, size: 40)),
+            builder: (_, value, child) => Transform.scale(scale: value, child: child),
+          ),
           const SizedBox(height: 10),
           TweenAnimationBuilder<double>(
             tween: Tween(begin: 0, end: done.score.total.toDouble()),
-            duration: const Duration(
+            duration: MediaQuery.disableAnimationsOf(context) ? Duration.zero : const Duration(
               milliseconds: GameConfig.scoreAnimationMilliseconds,
             ),
             builder: (_, value, _) => Text(

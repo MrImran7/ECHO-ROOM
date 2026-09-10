@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 
 import '../models/scene.dart';
 import 'room_art.dart';
+import 'feedback_motion.dart';
 import 'session.dart';
 
 class EchoGame extends FlameGame<World> {
@@ -64,7 +65,7 @@ class EchoGame extends FlameGame<World> {
       onReady();
       return;
     }
-    _time += dt;
+    if (!(session()?.paused ?? false)) _time += dt;
     onTick(dt);
   }
 
@@ -87,10 +88,10 @@ class EchoGame extends FlameGame<World> {
       art.object(
         canvas,
         o,
-        pulse: won && !reduceMotion ? 1 + .025 * math.sin(_time * 10) : 1,
+        pulse: won ? FeedbackMotion.correctScale(s!.phaseElapsed, reduced: reduceMotion) : 1,
         shake:
             !reduceMotion && selected && !won && (s?.feedbackRemaining ?? 0) > 0
-            ? math.sin(_time * 70) * 2
+            ? FeedbackMotion.wrongOffset(s!.phaseElapsed, reduced: reduceMotion)
             : 0,
       );
     }
@@ -123,7 +124,7 @@ class EchoGame extends FlameGame<World> {
         } else if (hinting && s.hints == 2) {
           canvas.drawCircle(
             center + const Offset(8, -8),
-            34 + math.sin(_time * 5) * 6,
+            34 + (reduceMotion ? 0 : math.sin(_time * 5) * 6),
             p..color = const Color(0xaaf5e1a6),
           );
         } else {
@@ -132,11 +133,11 @@ class EchoGame extends FlameGame<World> {
               center: center,
               width: math.max(
                 36,
-                o.width * 400 * o.scale + 16 + math.sin(_time * 5) * 4,
+                o.width * 400 * o.scale + 16 + (reduceMotion ? 0 : math.sin(_time * 5) * 4),
               ),
               height: math.max(
                 36,
-                o.height * 440 * o.scale + 16 + math.sin(_time * 5) * 4,
+                o.height * 440 * o.scale + 16 + (reduceMotion ? 0 : math.sin(_time * 5) * 4),
               ),
             ),
             p,
@@ -164,11 +165,10 @@ class EchoGame extends FlameGame<World> {
       }
       double darkness = 0;
       if (s.phase == GamePhase.flicker)
-        darkness = reduceMotion
-            ? .5
-            : (math.sin(s.phaseElapsed * 35) > 0)
-            ? .78
-            : .1;
+        darkness = FeedbackMotion.darkness(
+          s.phaseElapsed / s.duration,
+          reduced: reduceMotion,
+        );
       if (s.phase == GamePhase.loading ||
           s.phase == GamePhase.blackout ||
           s.paused ||

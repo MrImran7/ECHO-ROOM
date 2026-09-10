@@ -50,8 +50,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     if (state == AppLifecycleState.resumed) {
       _refresh();
       ref.read(audioProvider).resume();
+      ref.read(hapticsProvider).resume();
     } else {
       ref.read(audioProvider).suspend();
+      ref.read(hapticsProvider).suspend();
     }
   }
 

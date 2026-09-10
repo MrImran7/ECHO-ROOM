@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 
 import '../app/theme.dart';
 import '../game/room_art.dart';
@@ -22,6 +23,25 @@ class ActionButton extends StatefulWidget {
 
 class _ActionButtonState extends State<ActionButton> {
   bool _busy = false;
+  final _states = WidgetStatesController();
+  @override
+  void initState() {
+    super.initState();
+    _states.addListener(_pressedChanged);
+  }
+  void _pressedChanged() {
+    if (SchedulerBinding.instance.schedulerPhase == SchedulerPhase.persistentCallbacks) {
+      WidgetsBinding.instance.addPostFrameCallback((_) { if (mounted) setState(() {}); });
+    } else if (mounted) {
+      setState(() {});
+    }
+  }
+  @override
+  void dispose() {
+    _states.removeListener(_pressedChanged);
+    _states.dispose();
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     final child = Row(
@@ -55,10 +75,16 @@ class _ActionButtonState extends State<ActionButton> {
     final shape = RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(14),
     );
-    return SizedBox(
+    return AnimatedScale(
+      scale: _states.value.contains(WidgetState.pressed) ? .98 : 1,
+      duration: MediaQuery.disableAnimationsOf(context) ? Duration.zero :
+          const Duration(milliseconds: 120),
+      curve: Curves.easeOut,
+      child: SizedBox(
       width: double.infinity,
       child: widget.secondary
           ? OutlinedButton(
+              statesController: _states,
               onPressed: _busy || widget.onPressed == null ? null : press,
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
@@ -72,6 +98,7 @@ class _ActionButtonState extends State<ActionButton> {
               child: child,
             )
           : FilledButton(
+              statesController: _states,
               onPressed: _busy || widget.onPressed == null ? null : press,
               style: FilledButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
@@ -82,6 +109,7 @@ class _ActionButtonState extends State<ActionButton> {
               ),
               child: child,
             ),
+    ),
     );
   }
 }

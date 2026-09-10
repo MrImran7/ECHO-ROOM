@@ -140,6 +140,11 @@ class SessionController extends Notifier<int> {
     }
     if (s.phase == GamePhase.flicker && previous != s.phase)
       ref.read(audioProvider).cue(SoundCue.flicker);
+    if (s.lossReason == LossReason.timeout &&
+        previous != GamePhase.timedOut && previous != GamePhase.lost) {
+      ref.read(audioProvider).cue(SoundCue.timeout);
+      unawaited(ref.read(hapticsProvider).timeout());
+    }
     if (s.finished) {
       unawaited(_finish());
     }
@@ -286,11 +291,6 @@ class SessionController extends Notifier<int> {
         });
       for (final id in completion!.newAchievements) {
         ref.read(analyticsProvider).log('achievement_unlocked', {'id': id});
-      }
-      if (completion!.streakLabel != null ||
-          completion!.newAchievements.isNotEmpty) {
-        ref.read(audioProvider).cue(SoundCue.streak);
-        unawaited(ref.read(hapticsProvider).celebrate());
       }
       error = null;
     } catch (_) {
