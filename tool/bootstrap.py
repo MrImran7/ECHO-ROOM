@@ -51,15 +51,16 @@ if icon.exists():
  try:
   from PIL import Image
   im=Image.open(icon)
+  resample=getattr(Image, 'Resampling', Image).LANCZOS
   for density,size in {'mdpi':48,'hdpi':72,'xhdpi':96,'xxhdpi':144,'xxxhdpi':192}.items():
    dest=ROOT/f'android/app/src/main/res/mipmap-{density}/ic_launcher.png'
-   dest.parent.mkdir(parents=True,exist_ok=True); im.resize((size,size),Image.Resampling.LANCZOS).save(dest)
+   dest.parent.mkdir(parents=True,exist_ok=True); im.resize((size,size),resample).save(dest)
   aset=ROOT/'ios/Runner/Assets.xcassets/AppIcon.appiconset'
   contents=json.loads((aset/'Contents.json').read_text())
   for entry in contents['images']:
    if 'filename' not in entry: continue
    size=round(float(entry['size'].split('x')[0])*float(entry.get('scale','1x').removesuffix('x')))
-   im.resize((size,size),Image.Resampling.LANCZOS).convert('RGB').save(aset/entry['filename'])
+   im.resize((size,size),resample).convert('RGB').save(aset/entry['filename'])
  except ImportError:
   print('Optional: install Pillow and rerun bootstrap to replace generated launcher icons.')
 if not args.skip_pub: run('pub','get')

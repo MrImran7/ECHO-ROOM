@@ -92,6 +92,51 @@ class RoomArt {
     p.paint(c, Offset(x - p.width / 2, y));
   }
 
+  /// Original vector numerals remain readable at phone scale and in snapshots.
+  void noteNumber(Canvas c, String text) {
+    const strokes = [
+      [0.0, 0.0, 20.0, 0.0],
+      [20.0, 0.0, 20.0, 20.0],
+      [20.0, 20.0, 20.0, 40.0],
+      [0.0, 40.0, 20.0, 40.0],
+      [0.0, 20.0, 0.0, 40.0],
+      [0.0, 0.0, 0.0, 20.0],
+      [0.0, 20.0, 20.0, 20.0],
+    ];
+    const digits = [
+      '012345',
+      '12',
+      '01643',
+      '01236',
+      '5612',
+      '05632',
+      '054326',
+      '012',
+      '0123456',
+      '012356',
+    ];
+    if (text.length != 2 ||
+        text.codeUnits.any((unit) => unit < 48 || unit > 57)) {
+      label(c, text, 50, 20, 39, ink);
+      return;
+    }
+    for (var i = 0; i < text.length; i++) {
+      final x = 22.0 + i * 34;
+      for (final segment in digits[int.parse(text[i])].split('')) {
+        final stroke = strokes[int.parse(segment)];
+        line(
+          c,
+          x + stroke[0],
+          18 + stroke[1],
+          x + stroke[2],
+          18 + stroke[3],
+          ink,
+          4,
+        );
+      }
+    }
+  }
+
   void background(Canvas c) {
     const wall = Rect.fromLTWH(0, 0, 400, 300);
     _paint
@@ -223,6 +268,9 @@ class RoomArt {
         rect(c, 0, 0, 100, 100, const Color(0xffb3a886), 2);
         rect(c, 5, 4, 90, 90, const Color(0xff1f3d46));
         oval(c, 62, 13, 17, 15, const Color(0xffe4d5ab));
+        if (o.variant == 'double_moon') {
+          oval(c, 20, 13, 17, 15, const Color(0xffe4d5ab));
+        }
         for (var i = 0; i < 6; i++) {
           rect(
             c,
@@ -343,6 +391,9 @@ class RoomArt {
           25,
           const Color(0xffdcc598),
         );
+        if (o.variant == 'echo') {
+          rect(c, 26, 54, 17, 8, ink, 1);
+        }
         if (o.variant == 'visitor') {
           oval(c, 58, 33, 16, 16, const Color(0xff314d49));
           rect(c, 55, 47, 23, 22, const Color(0xff314d49), 8);
@@ -369,7 +420,7 @@ class RoomArt {
         break;
       case 'note':
         rect(c, 0, 0, 100, 100, const Color(0xffe7d6ae), 1);
-        label(c, o.text, 50, 20, 39, ink);
+        noteNumber(c, o.text);
         line(c, 18, 74, 82, 74, const Color(0xffad9675), 2);
         break;
       case 'vase':
