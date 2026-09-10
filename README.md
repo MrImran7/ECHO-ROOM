@@ -52,3 +52,34 @@ flutter build ios --simulator --debug
 `python3 tool/validate.py` bootstraps native hosts and runs the Flutter gates. It reports blocked checks explicitly when Flutter is absent. GitHub Actions runs Android and iOS validation. Python content and lexical checks are supplementary and do not establish Flutter compilation or device performance.
 
 A physical-device pass is still needed for audio/haptics, interruption behavior, safe areas and frame pacing before release. The local daily challenge has no online leaderboard; ads are mock interfaces and no account or sensitive permissions are required.
+
+## Chapter 1 — The Apartment
+
+The catalog has four cumulative detail tiers (17, 20, 23 and 26 visible objects),
+plus a matching-ceramics variant. Main furniture keeps the same coordinates in
+each tier. Later levels gain inspection time instead of relying on shorter timers.
+
+| Levels | Difficulty | Observe / answer | Changes in order |
+| --- | --- | --- | --- |
+| 1–5 | Easy | 7s / 7s | Lamp removed; chair moved; striped cup recolored; vase added; painting changed |
+| 6–10 | Medium | 8s / 8s | Red book removed; clock hand moved; cushion rotated; end vases swapped; vase striped |
+| 11–15 | Hard | 10s / 9s | Vase enlarged; key removed; note reversed; floor shadow reversed; reflected vase moved |
+| 16–20 | Very hard | 12s / 10s | Reflection-only stripe; earlier red book appears on floor; book leans; matching vase changes; second moon appears |
+
+Only Room 9 changes two objects: one relational swap, with either end accepted.
+Room 20 surrounds its impossible sky detail with unchanged repeated numbers,
+frames and book motifs. The player still identifies one changed object. Color
+puzzles also change patterns, and the swap uses a striped/plain distinction.
+Story fragments and collectible milestones remain at rooms 5, 10, 15 and 20.
+
+`tool/create_content.py` is the source for these authored definitions; run it to
+regenerate `assets/rooms/apartment.json`. Update both together. Level IDs remain
+stable for existing saves and daily history.
+
+`test/chapter_test.dart` checks each room's transitions, target and neighboring
+foreground hitboxes at three viewport widths, hints, replay isolation, invalid
+data and rendered before/after pixel differences. CI exports the 20 comparison
+images as **chapter-1-scene-review**. Images show original on the left and changed
+on the right. Existing progression, scoring and real Flame navigation tests also
+run. The formatter commit helper supports both named feature branches; no
+analysis, test or native build gate is skipped.
