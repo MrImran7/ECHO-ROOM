@@ -141,7 +141,8 @@ class SessionController extends Notifier<int> {
     if (s.phase == GamePhase.flicker && previous != s.phase)
       ref.read(audioProvider).cue(SoundCue.flicker);
     if (s.lossReason == LossReason.timeout &&
-        previous != GamePhase.timedOut && previous != GamePhase.lost) {
+        previous != GamePhase.timedOut &&
+        previous != GamePhase.lost) {
       ref.read(audioProvider).cue(SoundCue.timeout);
       unawaited(ref.read(hapticsProvider).timeout());
     }

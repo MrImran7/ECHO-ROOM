@@ -34,6 +34,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
     _haptics.cancelPending();
     super.dispose();
   }
+
   @override
   void initState() {
     super.initState();
@@ -44,12 +45,19 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
       // One result cue: milestone wins priority over story and completion.
       // Loss already received its feedback in the session controller.
       if (s.phase != GamePhase.won) return;
-      final milestone = widget.completion.streakLabel != null ||
+      final milestone =
+          widget.completion.streakLabel != null ||
           widget.completion.newAchievements.isNotEmpty;
-      ref.read(audioProvider).cue(milestone ? SoundCue.streak :
-          s.level.storyText.isNotEmpty ? SoundCue.mystery : SoundCue.complete);
-      unawaited(milestone ? _haptics.celebrate() :
-          _haptics.complete());
+      ref
+          .read(audioProvider)
+          .cue(
+            milestone
+                ? SoundCue.streak
+                : s.level.storyText.isNotEmpty
+                ? SoundCue.mystery
+                : SoundCue.complete,
+          );
+      unawaited(milestone ? _haptics.celebrate() : _haptics.complete());
     });
   }
 
@@ -91,18 +99,22 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
           const SizedBox(height: 20),
           TweenAnimationBuilder<double>(
             tween: Tween(begin: .9, end: 1),
-            duration: MediaQuery.disableAnimationsOf(context) ? Duration.zero :
-                const Duration(milliseconds: 300),
+            duration: MediaQuery.disableAnimationsOf(context)
+                ? Duration.zero
+                : const Duration(milliseconds: 300),
             curve: Curves.easeOutCubic,
             child: Center(child: Stars(done.score.stars, size: 40)),
-            builder: (_, value, child) => Transform.scale(scale: value, child: child),
+            builder: (_, value, child) =>
+                Transform.scale(scale: value, child: child),
           ),
           const SizedBox(height: 10),
           TweenAnimationBuilder<double>(
             tween: Tween(begin: 0, end: done.score.total.toDouble()),
-            duration: MediaQuery.disableAnimationsOf(context) ? Duration.zero : const Duration(
-              milliseconds: GameConfig.scoreAnimationMilliseconds,
-            ),
+            duration: MediaQuery.disableAnimationsOf(context)
+                ? Duration.zero
+                : const Duration(
+                    milliseconds: GameConfig.scoreAnimationMilliseconds,
+                  ),
             builder: (_, value, _) => Text(
               value.round().toString(),
               textAlign: TextAlign.center,

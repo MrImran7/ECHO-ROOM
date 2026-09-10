@@ -13,82 +13,83 @@ import 'package:echo_room/storage/progress_repository.dart';
 import 'test_support.dart';
 
 void main() {
-  testWidgets('home, lifecycle pause, real Flame room, correct tap and next room', (
-    tester,
-  ) async {
-    tester.view.physicalSize = const Size(430, 932);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-    final repo = MemoryProgressRepository();
-    final container = ProviderContainer(
-      overrides: [
-        repositoryProvider.overrideWithValue(repo),
-        catalogProvider.overrideWith((ref) async => loadCatalog()),
-        audioProvider.overrideWithValue(SilentAudio()),
-        hapticsProvider.overrideWithValue(HapticsService()..enabled = false),
-      ],
-    );
-    addTearDown(container.dispose);
-    await tester.pumpWidget(
-      UncontrolledProviderScope(
-        container: container,
-        child: const EchoRoomApp(),
-      ),
-    );
-    await tester.pump();
-    await tester.pump();
-    await tester.ensureVisible(find.text('PLAY'));
-    await tester.tap(find.text('PLAY'));
-    await tester.pump();
-    for (var i = 0; i < 60; i++) {
-      await tester.pump(const Duration(milliseconds: 80));
-    }
-    final s = container.read(sessionProvider.notifier).game!;
-    expect(s.phase, GamePhase.observing);
-    final observationElapsed = s.phaseElapsed;
-    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
-    await tester.pump(const Duration(seconds: 10));
-    expect(s.paused, true);
-    expect(s.phaseElapsed, observationElapsed);
-    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
-    await tester.pump();
-    expect(s.paused, true);
-    await tester.tap(find.text('RESUME'));
-    await tester.pump();
-    for (var i = 0; i < 170 && s.phase != GamePhase.answering; i++) {
-      await tester.pump(const Duration(milliseconds: 80));
-    }
-    expect(s.phase, GamePhase.answering);
-    final gameRect = tester.getRect(
-      find.byWidgetPredicate((widget) => widget is GameWidget<EchoGame>),
-    );
-    final lamp = s.original.object('lamp');
-    await tester.tapAt(
-      gameRect.topLeft +
-          Offset(lamp.x * gameRect.width, lamp.y * gameRect.height),
-    );
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 100));
-    expect(find.text('✓ FOUND IT!'), findsOneWidget);
-    for (var i = 0; i < 20; i++) {
-      await tester.pump(const Duration(milliseconds: 80));
-    }
-    expect((await repo.load()).highestLevel, 2);
-    expect(find.text('ROOM COMPLETE'), findsOneWidget);
-    expect(tester.takeException(), isNull);
-    await tester.ensureVisible(find.text('NEXT ROOM'));
-    await tester.tap(find.text('NEXT ROOM'));
-    for (var i = 0; i < 5; i++) {
-      await tester.pump(const Duration(milliseconds: 80));
-    }
-    final next = container.read(sessionProvider.notifier).game!;
-    expect(next.level.levelId, 2);
-    expect(identical(next, s), false);
-    expect(next.mistakes, 0);
-    expect(next.hints, 0);
-    expect(s.phase, GamePhase.won);
-    expect(tester.takeException(), isNull);
-    await tester.pumpWidget(const SizedBox());
-  });
+  testWidgets(
+    'home, lifecycle pause, real Flame room, correct tap and next room',
+    (tester) async {
+      tester.view.physicalSize = const Size(430, 932);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final repo = MemoryProgressRepository();
+      final container = ProviderContainer(
+        overrides: [
+          repositoryProvider.overrideWithValue(repo),
+          catalogProvider.overrideWith((ref) async => loadCatalog()),
+          audioProvider.overrideWithValue(SilentAudio()),
+          hapticsProvider.overrideWithValue(HapticsService()..enabled = false),
+        ],
+      );
+      addTearDown(container.dispose);
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: const EchoRoomApp(),
+        ),
+      );
+      await tester.pump();
+      await tester.pump();
+      await tester.ensureVisible(find.text('PLAY'));
+      await tester.tap(find.text('PLAY'));
+      await tester.pump();
+      for (var i = 0; i < 60; i++) {
+        await tester.pump(const Duration(milliseconds: 80));
+      }
+      final s = container.read(sessionProvider.notifier).game!;
+      expect(s.phase, GamePhase.observing);
+      final observationElapsed = s.phaseElapsed;
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      await tester.pump(const Duration(seconds: 10));
+      expect(s.paused, true);
+      expect(s.phaseElapsed, observationElapsed);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await tester.pump();
+      expect(s.paused, true);
+      await tester.tap(find.text('RESUME'));
+      await tester.pump();
+      for (var i = 0; i < 170 && s.phase != GamePhase.answering; i++) {
+        await tester.pump(const Duration(milliseconds: 80));
+      }
+      expect(s.phase, GamePhase.answering);
+      final gameRect = tester.getRect(
+        find.byWidgetPredicate((widget) => widget is GameWidget<EchoGame>),
+      );
+      final lamp = s.original.object('lamp');
+      await tester.tapAt(
+        gameRect.topLeft +
+            Offset(lamp.x * gameRect.width, lamp.y * gameRect.height),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(find.text('✓ FOUND IT!'), findsOneWidget);
+      for (var i = 0; i < 20; i++) {
+        await tester.pump(const Duration(milliseconds: 80));
+      }
+      expect((await repo.load()).highestLevel, 2);
+      expect(find.text('ROOM COMPLETE'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await tester.ensureVisible(find.text('NEXT ROOM'));
+      await tester.tap(find.text('NEXT ROOM'));
+      for (var i = 0; i < 5; i++) {
+        await tester.pump(const Duration(milliseconds: 80));
+      }
+      final next = container.read(sessionProvider.notifier).game!;
+      expect(next.level.levelId, 2);
+      expect(identical(next, s), false);
+      expect(next.mistakes, 0);
+      expect(next.hints, 0);
+      expect(s.phase, GamePhase.won);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox());
+    },
+  );
 }

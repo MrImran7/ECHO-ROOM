@@ -100,9 +100,9 @@ class _GameViewportState extends State<GameViewport>
               if (!_answerGesture) return;
               _answerGesture = false;
               widget.onTap(
-              event.localPosition.dx / bounds.maxWidth,
-              event.localPosition.dy / bounds.maxHeight,
-              _game.hitPadding,
+                event.localPosition.dx / bounds.maxWidth,
+                event.localPosition.dy / bounds.maxHeight,
+                _game.hitPadding,
               );
             },
             child: GameWidget<EchoGame>(

@@ -97,7 +97,12 @@ class EchoGame extends FlameGame<World> {
       art.object(
         canvas,
         o,
-        pulse: won ? FeedbackMotion.correctScale(s!.phaseElapsed, reduced: reduceMotion) : 1,
+        pulse: won
+            ? FeedbackMotion.correctScale(
+                s!.phaseElapsed,
+                reduced: reduceMotion,
+              )
+            : 1,
         shake:
             !reduceMotion && selected && !won && (s?.feedbackRemaining ?? 0) > 0
             ? FeedbackMotion.wrongOffset(s!.phaseElapsed, reduced: reduceMotion)
@@ -142,11 +147,15 @@ class EchoGame extends FlameGame<World> {
               center: center,
               width: math.max(
                 36,
-                o.width * 400 * o.scale + 16 + (reduceMotion ? 0 : math.sin(_time * 5) * 4),
+                o.width * 400 * o.scale +
+                    16 +
+                    (reduceMotion ? 0 : math.sin(_time * 5) * 4),
               ),
               height: math.max(
                 36,
-                o.height * 440 * o.scale + 16 + (reduceMotion ? 0 : math.sin(_time * 5) * 4),
+                o.height * 440 * o.scale +
+                    16 +
+                    (reduceMotion ? 0 : math.sin(_time * 5) * 4),
               ),
             ),
             p,

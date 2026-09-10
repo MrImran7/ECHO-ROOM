@@ -53,8 +53,8 @@ class _PlatformChannel implements AudioChannel {
 
 class LocalAudioService implements AudioService {
   LocalAudioService({AudioChannel Function()? createChannel})
-      : _effects = (createChannel ?? _PlatformChannel.new)(),
-        _music = (createChannel ?? _PlatformChannel.new)();
+    : _effects = (createChannel ?? _PlatformChannel.new)(),
+      _music = (createChannel ?? _PlatformChannel.new)();
   UserSettings _settings = const UserSettings();
   final AudioChannel _effects, _music;
   Future<void> _effectQueue = Future.value(), _musicQueue = Future.value();
@@ -72,14 +72,23 @@ class LocalAudioService implements AudioService {
   void cue(SoundCue cue) {
     if (!_settings.sound || _suspended || _disposed) return;
     final generation = ++_generation;
-    _effectQueue = _effectQueue.then((_) => _safe(() async {
-      if (_disposed || generation != _generation) return;
-      await _effects.stop();
-      if (_disposed || _suspended || !_settings.sound || generation != _generation) return;
-      // Reuse the original subdued negative tone; no new asset is required.
-      final asset = cue == SoundCue.timeout ? 'wrong' : cue.name;
-      await _effects.play('audio/$asset.wav', cue == SoundCue.timeout ? .3 : .55);
-    }));
+    _effectQueue = _effectQueue.then(
+      (_) => _safe(() async {
+        if (_disposed || generation != _generation) return;
+        await _effects.stop();
+        if (_disposed ||
+            _suspended ||
+            !_settings.sound ||
+            generation != _generation)
+          return;
+        // Reuse the original subdued negative tone; no new asset is required.
+        final asset = cue == SoundCue.timeout ? 'wrong' : cue.name;
+        await _effects.play(
+          'audio/$asset.wav',
+          cue == SoundCue.timeout ? .3 : .55,
+        );
+      }),
+    );
   }
 
   void _stopEffects() {
@@ -96,21 +105,23 @@ class LocalAudioService implements AudioService {
   }
 
   void _syncMusic() {
-    _musicQueue = _musicQueue.then((_) => _safe(() async {
-      if (_disposed) return;
-      if (!_settings.music || _suspended) {
-        await _music.pause();
-        return;
-      }
-      if (!_started) {
-        await _music.loop();
-        if (_disposed || _suspended || !_settings.music) return;
-        await _music.play('audio/ambient.wav', .15);
-        _started = true;
-      } else {
-        await _music.resume();
-      }
-    }));
+    _musicQueue = _musicQueue.then(
+      (_) => _safe(() async {
+        if (_disposed) return;
+        if (!_settings.music || _suspended) {
+          await _music.pause();
+          return;
+        }
+        if (!_started) {
+          await _music.loop();
+          if (_disposed || _suspended || !_settings.music) return;
+          await _music.play('audio/ambient.wav', .15);
+          _started = true;
+        } else {
+          await _music.resume();
+        }
+      }),
+    );
   }
 
   @override
@@ -147,11 +158,26 @@ class HapticsService {
     _enabled = value;
     if (!value) _generation++;
   }
+
   bool get _available => _enabled && !_suspended && !_disposed;
-  void cancelPending() { _generation++; }
-  void suspend() { _suspended = true; cancelPending(); }
-  void resume() { if (!_disposed) _suspended = false; }
-  void dispose() { _disposed = true; _generation++; }
+  void cancelPending() {
+    _generation++;
+  }
+
+  void suspend() {
+    _suspended = true;
+    cancelPending();
+  }
+
+  void resume() {
+    if (!_disposed) _suspended = false;
+  }
+
+  void dispose() {
+    _disposed = true;
+    _generation++;
+  }
+
   Future<void> _safe(Future<void> Function() action) async {
     try {
       await action();
@@ -181,6 +207,7 @@ class HapticsService {
     final generation = ++_generation;
     await _safe(HapticFeedback.selectionClick);
     await Future<void>.delayed(const Duration(milliseconds: 90));
-    if (_available && generation == _generation) await _safe(HapticFeedback.lightImpact);
+    if (_available && generation == _generation)
+      await _safe(HapticFeedback.lightImpact);
   }
 }
