@@ -1,4 +1,4 @@
-import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_test/flutter_test.dart' hide HitTester;
 import 'package:echo_room/core/config.dart';
 import 'package:echo_room/game/session.dart';
 import 'package:echo_room/game/hit_test.dart';
