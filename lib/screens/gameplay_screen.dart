@@ -141,7 +141,8 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
     ref.listen(sessionProvider, (_, _) => _queueResults());
     ref.watch(sessionProvider);
     final c = ref.read(sessionProvider.notifier), s = _session;
-    final hintBalance = ref.watch(profileProvider.select((p) => p.hints));
+    final chapterHints = ref.watch(profileProvider.select((p) => p.hints));
+    final hintBalance = s.dailyDate == null ? chapterHints : 3 - s.hints;
     final title = switch (s.phase) {
       GamePhase.loading => 'OPENING THE ROOM',
       GamePhase.intro ||
@@ -363,7 +364,7 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
                                 : s.phase == GamePhase.observing
                                 ? 'Remember the room. A detail will change.'
                                 : s.dailyDate != null
-                                ? 'ONE CHANCE · NO HINTS'
+                                ? 'ONE OFFICIAL ATTEMPT · 3 FREE HINT STRENGTHS'
                                 : 'Tap what changed — even if it disappeared.',
                             textAlign: TextAlign.center,
                             style: const TextStyle(fontSize: 12),
@@ -376,8 +377,7 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
                                   onPressed:
                                       s.phase == GamePhase.answering &&
                                           !c.hinting &&
-                                          s.hints < 3 &&
-                                          s.dailyDate == null
+                                          s.hints < 3
                                       ? c.hint
                                       : null,
                                   icon: const Icon(
@@ -387,7 +387,7 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
                                   label: Text(
                                     s.hints == 3
                                         ? 'REVEALED'
-                                        : 'HINT ${s.hints + 1} · ${GameConfig.hintCosts[math.min(s.hints, 2)]}',
+                                        : 'HINT ${s.hints + 1} · ${s.dailyDate == null ? GameConfig.hintCosts[math.min(s.hints, 2)].toString() : 'FREE'}',
                                   ),
                                   style: OutlinedButton.styleFrom(
                                     minimumSize: const Size(48, 48),
@@ -396,7 +396,9 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
                               ),
                               const SizedBox(width: 16),
                               Text(
-                                '${s.attemptsLeft} tries\n$hintBalance hints',
+                                s.dailyDate == null
+                                    ? '${s.attemptsLeft} tries\n$hintBalance hints'
+                                    : '${s.attemptsLeft} chance\n$hintBalance daily hints',
                                 textAlign: TextAlign.end,
                                 style: const TextStyle(fontSize: 12),
                               ),

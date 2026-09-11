@@ -54,7 +54,7 @@ Completion completeSession(
     limit: s.level.answerDuration,
     mistakes: s.mistakes,
     hints: s.hints,
-    streak: streak,
+    streak: s.dailyDate == null ? streak : 0,
   );
   if (p.completedRuns.contains(s.runId))
     return Completion(p, score, {}, null, null);
@@ -65,6 +65,10 @@ Completion completeSession(
   var foundCollectibles = <String>{};
   if (s.dailyDate != null) {
     final key = s.dailyDate!;
+    // Date-level idempotency survives different run IDs and old run pruning.
+    if (p.daily[key]?.finalized ?? false) {
+      return Completion(p, score, {}, null, null);
+    }
     final dailyStreak = won
         ? (p.lastDailyWin == previousDate(key) ? p.dailyStreak + 1 : 1)
         : 0;
@@ -76,6 +80,9 @@ Completion completeSession(
           status: won ? 'won' : 'lost',
           time: s.answerElapsed,
           score: score.total,
+          puzzleVersion: p.daily[key]?.puzzleVersion ?? 1,
+          mistakes: s.mistakes,
+          hintsUsed: s.hints,
         ).toJson(),
       },
       'dailyStreak': dailyStreak,
@@ -136,11 +143,13 @@ Completion completeSession(
       });
     }
   }
-  next = next.patch({
+  if (s.dailyDate == null) next = next.patch({
     'streak': streak,
     'bestStreak': math.max(p.bestStreak, streak),
   });
-  final unlocked = unlockedAchievements(next, chapterSize);
+  final unlocked = s.dailyDate == null
+      ? unlockedAchievements(next, chapterSize)
+      : p.achievements;
   final runs = [...p.completedRuns, s.runId];
   next = next.patch({
     'achievements': unlocked.toList(),
@@ -152,7 +161,7 @@ Completion completeSession(
     score,
     unlocked.difference(p.achievements),
     collectible,
-    won ? GameConfig.milestones[streak] : null,
+    won && s.dailyDate == null ? GameConfig.milestones[streak] : null,
     newBestScore: newBestScore,
     newBestTime: newBestTime,
     newStarRecord: newStarRecord,

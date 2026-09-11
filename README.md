@@ -107,3 +107,47 @@ These counters track completed Apartment sessions, including failures and replay
 Chapter totals and fastest time are derived from best records, never accumulated.
 Reset clears progression while preserving Music, Sound and Haptics preferences.
 Achievements and local stats remain viewable in Collection.
+
+### Daily Room
+
+`lib/daily/daily_service.dart` owns the injectable local clock and stable pool-v1
+selection. Calendar date fields (YYYY-MM-DD), not elapsed hours or time of day,
+select among rooms 6–11 and 13–15. Preserve pool ordering/content within a version;
+bump `dailyPoolVersion` for an intentional content change. Existing unfinished
+reservations keep their saved level/version.
+
+One official attempt per date; one wrong answer or timeout ends it. Three free
+hint strengths use the existing score penalties without spending chapter hints.
+Daily play ignores lives and cannot alter chapter records, achievements,
+collectibles, stats or gameplay streak. There is no post-result practice mode.
+
+Start and final result are persisted through the existing repository. A killed
+app resumes its checkpoint; an unfinished reservation without a checkpoint can
+retry. Finishing after midnight still belongs to the start date. Final records
+are immutable by date, even with a different run ID. A paused chapter room must
+be finished before switching modes because there is one active-session slot.
+
+Consecutive successful calendar dates extend the daily streak; failure or a
+skipped day resets it, while best streak remains. Entry/resume/return refresh
+local dates, and PLAY rechecks at touch time; there is no midnight polling.
+History retains version, puzzle ID, result, score, milliseconds, mistakes and
+hints in the existing backward-compatible save envelope. These fields form the
+future leaderboard submission payload; no network implementation is included.
+Reset Progress clears daily data and keeps sound/music/haptic preferences.
+Debug builds show the date, selected puzzle and pool version on Daily Room.
+
+Daily hardening: saved attempts distinguish started/interrupted from completed/
+failed while keeping legacy status keys. Back pauses the existing attempt;
+resume preserves hints, puzzle and start date, including after local midnight.
+Only finalized records expose `officialPayload(date)`; repeated finalization
+cannot replace a date's result. A failed save remains retryable. A process killed
+before a write reaches disk can recover only the last successful checkpoint.
+
+DEBUG builds offer OPEN DAILY LAB from Daily Room. The lab has its own in-memory
+repository: override date, restore REAL DATE, clear today/interrupted attempts,
+and simulate yesterday solved/failed or a missed day. EXIT LAB discards all lab
+records; no override or simulated progress reaches the real save. Automated tests
+use injected clocks. Dates are local calendar keys, so timezone changes can move
+the visible day backward/forward without renaming stored history. No anti-cheat
+is attempted. History keeps one small record per played date (roughly a few
+hundred bytes per day, around 100 KB/year), and displays only the latest seven.

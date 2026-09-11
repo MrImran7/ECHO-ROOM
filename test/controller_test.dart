@@ -10,10 +10,20 @@ import 'package:echo_room/services/audio_service.dart';
 import 'package:echo_room/storage/progress_repository.dart';
 
 import 'test_support.dart';
+import 'package:echo_room/daily/daily_service.dart';
 
-Future<ProviderContainer> ready(MemoryProgressRepository repo) async {
+class TestClock implements LocalClock {
+  TestClock(this.value);
+  DateTime value;
+  @override
+  DateTime now() => value;
+}
+
+
+Future<ProviderContainer> ready(MemoryProgressRepository repo, {LocalClock? clock}) async {
   final c = ProviderContainer(
     overrides: [
+      clockProvider.overrideWithValue(clock ?? TestClock(DateTime(2026, 9, 11))),
       repositoryProvider.overrideWithValue(repo),
       catalogProvider.overrideWith((ref) async => loadCatalog()),
       audioProvider.overrideWithValue(SilentAudio()),
