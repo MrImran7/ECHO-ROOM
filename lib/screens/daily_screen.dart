@@ -5,11 +5,13 @@ import '../app/providers.dart';
 import '../app/theme.dart';
 import '../core/config.dart';
 import '../daily/daily_service.dart';
+import '../daily/debug_daily_lab.dart';
 import '../widgets/common.dart';
 import 'launch_game.dart';
 
 class DailyScreen extends ConsumerStatefulWidget {
-  const DailyScreen({super.key});
+  const DailyScreen({this.onExitLab, super.key});
+  final VoidCallback? onExitLab;
   @override
   ConsumerState<DailyScreen> createState() => _DailyScreenState();
 }
@@ -34,7 +36,12 @@ class _DailyScreenState extends ConsumerState<DailyScreen>
     super.dispose();
   }
 
+  bool _opening = false;
+
   Future<void> _play() async {
+    if (_opening) return;
+    _opening = true;
+    try {
     // Read again at touch time: an entry screen may have crossed midnight.
     final p = ref.read(profileProvider);
     final now = ref.read(clockProvider).now();
@@ -46,6 +53,7 @@ class _DailyScreenState extends ConsumerState<DailyScreen>
     }
     await launchGame(context, ref, 1, daily: true, resume: saved != null);
     if (mounted) setState(() {});
+    } finally { _opening = false; }
   }
 
   @override
@@ -81,6 +89,8 @@ class _DailyScreenState extends ConsumerState<DailyScreen>
             Stat('${visibleDailyStreak(p, now)}', 'DAILY STREAK'),
             Stat('${p.bestDailyStreak}', 'BEST STREAK'),
           ])),
+          const SizedBox(height: 10),
+          const Text('Complete Daily Room on consecutive days.', textAlign: TextAlign.center),
           const SizedBox(height: 28),
           if (finalized)
             Panel(child: Column(children: [
@@ -99,12 +109,12 @@ class _DailyScreenState extends ConsumerState<DailyScreen>
             const SizedBox(height: 12),
             Text(savedDate == null
                 ? 'Your chapter room is paused. Finish it before starting daily play.'
-                : 'Your $savedDate daily attempt is saved. Continue without losing time.',
+                : 'Resume ${MaterialLocalizations.of(context).formatMediumDate(DateTime.parse(savedDate))}. The result belongs to that date, even after midnight.',
                 textAlign: TextAlign.center),
             const SizedBox(height: 12),
-            ActionButton(savedDate == null ? 'CONTINUE CHAPTER ROOM' : 'CONTINUE DAILY', onPressed: _play),
+            ActionButton(savedDate == null ? 'CONTINUE CHAPTER ROOM' : 'RESUME DAILY ROOM', onPressed: _play),
           ] else if (!finalized)
-            ActionButton(record == null ? 'PLAY DAILY ROOM' : 'RETRY UNFINISHED DAILY', onPressed: _play),
+            ActionButton(record == null ? 'PLAY DAILY ROOM' : 'RESUME DAILY ROOM', onPressed: _play),
           const SizedBox(height: 30),
           const Eyebrow('RECENT ROOMS'),
           const SizedBox(height: 12),
@@ -113,15 +123,21 @@ class _DailyScreenState extends ConsumerState<DailyScreen>
           for (final key in (p.daily.keys.toList()..sort((a, b) => b.compareTo(a))).take(7))
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: Icon(p.daily[key]!.status == 'won' ? Icons.check : Icons.remove, color: EchoTheme.gold),
-              title: Text(key),
+              leading: Icon(p.daily[key]!.status == 'won' ? Icons.check : p.daily[key]!.status == 'lost' ? Icons.close : Icons.pause, color: EchoTheme.gold),
+              title: Text(MaterialLocalizations.of(context).formatMediumDate(DateTime.parse(key))),
               trailing: Text(switch (p.daily[key]!.status) {
-                'won' => '${p.daily[key]!.time.toStringAsFixed(2)}s',
+                'won' => 'SOLVED · ${p.daily[key]!.time.toStringAsFixed(2)}s',
                 'lost' => 'MISSED',
                 _ => 'UNFINISHED',
               }),
             ),
           if (GameConfig.debugTools) ...[
+            if (widget.onExitLab != null)
+              DailyLabControls(onRefresh: () { if (mounted) setState(() {}); }, onExit: widget.onExitLab!)
+            else
+              TextButton(onPressed: () => Navigator.of(context).push<void>(
+                MaterialPageRoute(builder: (_) => DailyDebugLab(baseClock: ref.read(clockProvider)))),
+                child: const Text('OPEN DAILY LAB')),
             const SizedBox(height: 16),
             Text('DEBUG · $today · pool v${LocalDailyChallengeSource.dailyPoolVersion} · puzzle ${record?.levelId ?? const LocalDailyChallengeSource().levelFor(now, ref.read(catalogProvider).requireValue.levels.length)}',
                 textAlign: TextAlign.center, style: const TextStyle(fontSize: 11)),

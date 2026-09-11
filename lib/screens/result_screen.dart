@@ -55,7 +55,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
           .cue(
             milestone
                 ? SoundCue.streak
-                : s.level.storyText.isNotEmpty
+                : s.dailyDate == null && s.level.storyText.isNotEmpty
                 ? SoundCue.mystery
                 : SoundCue.complete,
           );
@@ -138,7 +138,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
               style: Theme.of(context).textTheme.headlineMedium,
             ),
             const SizedBox(height: 20),
-            TweenAnimationBuilder<double>(
+            if (!daily) TweenAnimationBuilder<double>(
               tween: Tween(begin: .9, end: 1),
               duration: MediaQuery.disableAnimationsOf(context)
                   ? Duration.zero
@@ -316,7 +316,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                 ),
               ),
             ],
-            if (won && s.level.storyText.isNotEmpty) ...[
+            if (!daily && won && s.level.storyText.isNotEmpty) ...[
               const SizedBox(height: 24),
               Text(
                 '“${s.level.storyText}”',

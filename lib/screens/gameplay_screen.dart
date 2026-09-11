@@ -396,7 +396,9 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
                               ),
                               const SizedBox(width: 16),
                               Text(
-                                '${s.attemptsLeft} tries\n$hintBalance hints',
+                                s.dailyDate == null
+                                    ? '${s.attemptsLeft} tries\n$hintBalance hints'
+                                    : '${s.attemptsLeft} chance\n$hintBalance daily hints',
                                 textAlign: TextAlign.end,
                                 style: const TextStyle(fontSize: 12),
                               ),

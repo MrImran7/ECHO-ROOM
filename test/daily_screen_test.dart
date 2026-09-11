@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:echo_room/models/progress.dart';
+import 'package:echo_room/widgets/common.dart';
 import 'package:echo_room/screens/daily_screen.dart';
 import 'package:echo_room/services/progression_service.dart';
 import 'package:echo_room/storage/progress_repository.dart';
@@ -20,6 +21,7 @@ void main() {
       expect(find.text(won ? 'DAILY ROOM COMPLETE' : 'DAILY ROOM MISSED'), findsOneWidget);
       expect(find.text('NEXT ROOM'), findsNothing);
       expect(find.text('REPLAY'), findsNothing);
+      expect(find.byType(Stars), findsNothing);
       await reveal(tester, 'BEST DAILY STREAK');
       expect(tester.takeException(), isNull);
       await reveal(tester, 'HOME');

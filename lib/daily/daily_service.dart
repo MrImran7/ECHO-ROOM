@@ -49,9 +49,12 @@ int visibleDailyStreak(Progress p, DateTime now) {
       : 0;
 }
 
-String dailyStatus(Progress p, DateTime now) => switch (p.daily[dateKey(now)]?.status) {
-  'won' => '✓ COMPLETE',
-  'lost' => 'MISSED',
-  'started' => 'CONTINUE',
-  _ => 'NEW',
+DailyAttemptState dailyAttemptState(Progress p, DateTime now) =>
+    p.daily[dateKey(now)]?.state ?? DailyAttemptState.available;
+
+String dailyStatus(Progress p, DateTime now) => switch (dailyAttemptState(p, now)) {
+  DailyAttemptState.completed => '✓ COMPLETE',
+  DailyAttemptState.failed => 'MISSED',
+  DailyAttemptState.started || DailyAttemptState.interrupted => 'RESUME',
+  DailyAttemptState.available => 'NEW',
 };

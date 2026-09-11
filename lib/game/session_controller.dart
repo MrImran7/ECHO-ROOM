@@ -21,6 +21,7 @@ class SessionController extends Notifier<int> {
   String? error;
   bool _finishing = false, _starting = false, _hinting = false;
   bool get hinting => _hinting;
+  int _runSequence = 0;
   double _hudElapsed = 0, _checkpointElapsed = 0;
   int _lastCountdown = 4;
   bool _disposed = false;
@@ -78,7 +79,7 @@ class SessionController extends Notifier<int> {
     final s = GameSession(
       level: level,
       room: catalog.rooms[level.roomId]!,
-      runId: DateTime.now().microsecondsSinceEpoch.toString(),
+      runId: '${today.microsecondsSinceEpoch}-${++_runSequence}',
       dailyDate: date,
       skipCountdown:
           GameConfig.debugTools && ref.read(debugProvider).skipCountdown,
@@ -240,13 +241,27 @@ class SessionController extends Notifier<int> {
       await ref
           .read(profileProvider.notifier)
           .commit(
-            ref.read(profileProvider).patch({'activeSession': s.toJson()}),
+            _checkpointProgress(s),
           );
       error = null;
     } catch (_) {
       error = 'Progress could not be saved. Pause and retry saving.';
       _notify();
     }
+  }
+
+  Progress _checkpointProgress(GameSession s) {
+    final p = ref.read(profileProvider);
+    final date = s.dailyDate;
+    final record = date == null ? null : p.daily[date];
+    return p.patch({
+      'activeSession': s.toJson(),
+      if (date != null && s.paused && record != null && !record.finalized)
+        'daily': {
+          ...p.daily.map((key, value) => MapEntry(key, value.toJson())),
+          date: record.interrupted().toJson(),
+        },
+    });
   }
 
   void pause() {
@@ -300,7 +315,9 @@ class SessionController extends Notifier<int> {
     try {
       await ref
           .read(profileProvider.notifier)
-          .commit(_pendingCompletion!.progress);
+          .commit(s.dailyDate != null && ref.read(profileProvider).daily[s.dailyDate]?.finalized == true
+              ? ref.read(profileProvider)
+              : _pendingCompletion!.progress);
       if (_disposed) return;
       completion = _pendingCompletion;
       final won = s.phase == GamePhase.won;

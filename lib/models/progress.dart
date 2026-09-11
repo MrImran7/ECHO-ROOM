@@ -34,6 +34,8 @@ class LevelRecord {
   Json toJson() => {'score': score, 'stars': stars, 'bestTime': bestTime};
 }
 
+enum DailyAttemptState { available, started, interrupted, completed, failed }
+
 class DailyRecord {
   const DailyRecord({
     required this.levelId,
@@ -45,7 +47,27 @@ class DailyRecord {
     this.score = 0,
   });
   final int levelId, score, puzzleVersion, mistakes, hintsUsed;
-  bool get finalized => status == 'won' || status == 'lost';
+  DailyAttemptState get state => switch (status) {
+    'started' => DailyAttemptState.started,
+    'interrupted' => DailyAttemptState.interrupted,
+    'won' => DailyAttemptState.completed,
+    'lost' => DailyAttemptState.failed,
+    _ => throw FormatException('Unknown daily attempt status: $status'),
+  };
+  bool get finalized => state == DailyAttemptState.completed || state == DailyAttemptState.failed;
+  DailyRecord interrupted() => finalized ? this : DailyRecord(
+    levelId: levelId, status: 'interrupted', puzzleVersion: puzzleVersion,
+    time: time, score: score, mistakes: mistakes, hintsUsed: hintsUsed,
+  );
+  Json officialPayload(String date) {
+    if (!finalized) throw StateError('An unfinished attempt has no official payload.');
+    return {
+      'date': date, 'dailyPoolVersion': puzzleVersion, 'puzzleId': puzzleId,
+      'solved': state == DailyAttemptState.completed,
+      'responseTimeMs': responseTimeMs, 'score': score,
+      'mistakes': mistakes, 'hintsUsed': hintsUsed,
+    };
+  }
   int get responseTimeMs => (time * 1000).round();
   String get puzzleId => 'apartment-$levelId';
   final String status;

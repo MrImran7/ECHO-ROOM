@@ -135,3 +135,19 @@ hints in the existing backward-compatible save envelope. These fields form the
 future leaderboard submission payload; no network implementation is included.
 Reset Progress clears daily data and keeps sound/music/haptic preferences.
 Debug builds show the date, selected puzzle and pool version on Daily Room.
+
+Daily hardening: saved attempts distinguish started/interrupted from completed/
+failed while keeping legacy status keys. Back pauses the existing attempt;
+resume preserves hints, puzzle and start date, including after local midnight.
+Only finalized records expose `officialPayload(date)`; repeated finalization
+cannot replace a date's result. A failed save remains retryable. A process killed
+before a write reaches disk can recover only the last successful checkpoint.
+
+DEBUG builds offer OPEN DAILY LAB from Daily Room. The lab has its own in-memory
+repository: override date, restore REAL DATE, clear today/interrupted attempts,
+and simulate yesterday solved/failed or a missed day. EXIT LAB discards all lab
+records; no override or simulated progress reaches the real save. Automated tests
+use injected clocks. Dates are local calendar keys, so timezone changes can move
+the visible day backward/forward without renaming stored history. No anti-cheat
+is attempted. History keeps one small record per played date (roughly a few
+hundred bytes per day, around 100 KB/year), and displays only the latest seven.
