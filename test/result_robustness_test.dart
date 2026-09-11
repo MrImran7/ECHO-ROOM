@@ -113,7 +113,7 @@ void main() {
       win(s);
       final done = completeSession(progress, s, DateTime(2026, 9, 10), 20);
       expect(done.score.stars, 3);
-      expect(done.newAchievements.length, 5);
+      expect(done.newAchievements.length, 8);
       final repo = MemoryProgressRepository();
       await showResult(tester, s, done, repo);
       expect(find.text('NEXT ROOM'), findsNothing);
@@ -132,16 +132,16 @@ void main() {
         'EAGLE EYE',
         'NO HELP NEEDED',
         'OBSERVER',
+        'PERFECTIONIST',
+        'MASTER OBSERVER',
+        'STREAK MASTER',
       ]) {
         await reveal(tester, label);
         expect(tester.takeException(), isNull);
       }
       await reveal(tester, 'IMPOSSIBLE · 20 IN A ROW');
       await reveal(tester, '“${s.level.storyText}”');
-      await reveal(
-        tester,
-        'CHAPTER 1 COMPLETE\nThe next door is not open. Yet.',
-      );
+      await reveal(tester, 'CHAPTER COMPLETE');
       final restored = await repo.load();
       expect(restored.highestLevel, 20);
       expect(restored.levels.length, 20);

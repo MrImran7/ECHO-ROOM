@@ -200,7 +200,8 @@ class SessionController extends Notifier<int> {
     if (s == null || s.hints >= 3 || s.dailyDate != null) return;
     final cost = GameConfig.hintCosts[s.hints];
     if (p.hints < cost) {
-      error = 'Not enough hints. First-time room completions earn two.';
+      error =
+          'Not enough hints. First clears of Rooms 5, 10, 15 and 20 earn more.';
       _notify();
       return;
     }

@@ -55,7 +55,7 @@ class CollectionScreen extends ConsumerWidget {
                         Text(
                           p.collectibles.contains(item.id)
                               ? item.description
-                              : 'Complete Room ${item.level}.',
+                              : item.condition,
                           style: const TextStyle(fontSize: 13),
                         ),
                       ],
@@ -67,8 +67,26 @@ class CollectionScreen extends ConsumerWidget {
             const SizedBox(height: 12),
           ],
           const SizedBox(height: 20),
-          const Eyebrow('ACHIEVEMENTS'),
+          Eyebrow(
+            'ACHIEVEMENTS · ${p.achievements.length} / ${achievements.length}',
+          ),
           const SizedBox(height: 12),
+          Panel(
+            child: Column(
+              children: [
+                const Eyebrow('YOUR OBSERVATION RECORD'),
+                const SizedBox(height: 12),
+                Text(
+                  '${p.correctAnswers} solves · ${p.wrongTaps} wrong taps · ${p.hintsUsed} hints used',
+                  textAlign: TextAlign.center,
+                ),
+                Text(
+                  'Best streak ${p.bestStreak} · Best time ${p.bestResponseTime == null ? '—' : '${p.bestResponseTime!.toStringAsFixed(2)}s'}',
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
           for (final a in achievements)
             ListTile(
               contentPadding: const EdgeInsets.symmetric(vertical: 5),
@@ -85,7 +103,7 @@ class CollectionScreen extends ConsumerWidget {
                 style: const TextStyle(fontSize: 13, letterSpacing: 1),
               ),
               subtitle: Text(
-                a.description,
+                '${a.description}\n${p.achievements.contains(a.id) ? 'UNLOCKED' : a.progressLabel(p, ref.read(catalogProvider).requireValue.levels.length)}',
                 style: const TextStyle(fontSize: 12),
               ),
             ),

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../app/providers.dart';
 import '../app/theme.dart';
 import '../core/config.dart';
+import '../services/audio_service.dart';
 import '../widgets/common.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -109,6 +110,20 @@ class SettingsScreen extends ConsumerWidget {
             const SizedBox(height: 35),
             const Divider(),
             const Eyebrow('DEVELOPMENT'),
+            const Text(
+              'Haptic API test · respects Haptics and Android system settings',
+            ),
+            Wrap(
+              spacing: 8,
+              children: [
+                for (final probe in HapticProbe.values)
+                  TextButton(
+                    onPressed: () =>
+                        ref.read(hapticsProvider).debugProbe(probe),
+                    child: Text('TEST ${probe.name.toUpperCase()}'),
+                  ),
+              ],
+            ),
             SwitchListTile(
               title: const Text('Unlock all levels'),
               value: debug.unlockAll,

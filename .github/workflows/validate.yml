@@ -21,7 +21,7 @@ jobs:
       - run: python3 -m pip install Pillow
       - run: python3 tool/validate.py
       - name: Commit formatter output to the active feature branch
-        if: always() && github.event_name == 'push' && (github.ref == 'refs/heads/feature/gameplay-core' || github.ref == 'refs/heads/feature/chapter-1' || github.ref == 'refs/heads/feature/game-feel')
+        if: always() && github.event_name == 'push' && (github.ref == 'refs/heads/feature/gameplay-core' || github.ref == 'refs/heads/feature/chapter-1' || github.ref == 'refs/heads/feature/game-feel' || github.ref == 'refs/heads/feature/progression')
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
