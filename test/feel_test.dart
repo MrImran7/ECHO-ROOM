@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:echo_room/core/config.dart';
 import 'package:echo_room/game/feedback_motion.dart';
@@ -288,7 +289,7 @@ void main() {
           null,
         ),
       );
-      final haptics = HapticsService()..enabled = false;
+      final haptics = HapticsService(platform: TargetPlatform.iOS)..enabled = false;
       await haptics.correct();
       await haptics.wrong();
       await haptics.timeout();
@@ -300,7 +301,7 @@ void main() {
       await haptics.wrong();
       await haptics.timeout();
       expect(calls, [
-        'HapticFeedbackType.lightImpact',
+        'HapticFeedbackType.mediumImpact',
         'HapticFeedbackType.heavyImpact',
         'HapticFeedbackType.mediumImpact',
       ]);
@@ -368,7 +369,7 @@ void main() {
           null,
         ),
       );
-      final haptics = HapticsService();
+      final haptics = HapticsService(platform: TargetPlatform.iOS);
       final pattern = haptics.celebrate();
       await tester.pump();
       await haptics.correct();
@@ -376,7 +377,7 @@ void main() {
       await pattern;
       expect(calls, [
         'HapticFeedbackType.selectionClick',
-        'HapticFeedbackType.lightImpact',
+        'HapticFeedbackType.mediumImpact',
       ]);
       fail = true;
       await haptics.wrong();
