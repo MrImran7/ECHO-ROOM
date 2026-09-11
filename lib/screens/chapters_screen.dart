@@ -28,9 +28,11 @@ class ChaptersScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            '${p.levels.length} / ${catalog.levels.length} rooms remembered',
+            '${p.roomsCompleted(catalog.levels.length)} / ${catalog.levels.length} rooms remembered · ${p.completionPercent(catalog.levels.length)}%',
             textAlign: TextAlign.center,
           ),
+          const SizedBox(height: 12),
+          Eyebrow('${p.totalStars(catalog.levels.length)} / ${catalog.levels.length * 3} ★'),
           const SizedBox(height: 24),
           RoomPreview(catalog.rooms.values.first),
           const SizedBox(height: 22),
@@ -49,7 +51,7 @@ class ChaptersScreen extends ConsumerWidget {
                 final id = catalog.levels[index].levelId,
                     locked = id > p.highestLevel && !unlockAll;
                 return Semantics(
-                  label: 'Room $id${locked ? ', locked' : ''}',
+                  label: 'Room $id${locked ? ', locked' : p.levels.containsKey(id) ? ', completed, ${p.levels[id]!.stars} stars' : ', unlocked'}',
                   child: Material(
                     color: EchoTheme.surface,
                     borderRadius: BorderRadius.circular(14),

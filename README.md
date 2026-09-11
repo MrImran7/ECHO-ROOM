@@ -83,3 +83,26 @@ images as **chapter-1-scene-review**. Images show original on the left and chang
 on the right. Existing progression, scoring and real Flame navigation tests also
 run. The formatter commit helper supports both named feature branches; no
 analysis, test or native build gate is skipped.
+
+## Player progression
+
+Chapter completion counts distinct solved rooms; stars measure mastery separately.
+One star requires a solve, two require at most one mistake/hint and a response
+within 85% of the room timer, and three require no mistakes/hints within 50%.
+Replays keep independent best score, stars and time. Successful solves (including
+replays) extend the active streak; failures reset it. Best streak survives restart.
+Mastery achievements count distinct rooms, and repeated solves award no hint currency.
+
+New players start with 3 hint units. First clears of rooms 5, 10 and 15 award 2;
+room 20 awards 3. Existing hint balances are preserved. Collection holds the four
+story milestone objects plus a watch for earning 3 stars in Room 12. Definitions
+live in `lib/achievements/` and `lib/collection/`; result processing remains in
+`ProgressionService`'s `completeSession`, outside the engine/render loop.
+
+The version-1 save format gains optional cumulative solve, wrong-tap and hint-use
+fields. Older saves retain all records/settings; known completed rooms seed the
+solve count, and unavailable historical wrong-tap/hint totals start at zero.
+These counters track completed Apartment sessions, including failures and replays.
+Chapter totals and fastest time are derived from best records, never accumulated.
+Reset clears progression while preserving Music, Sound and Haptics preferences.
+Achievements and local stats remain viewable in Collection.

@@ -14,6 +14,7 @@ import '../services/progression_service.dart';
 import '../widgets/common.dart';
 import '../game/session_controller.dart';
 import 'gameplay_screen.dart';
+import 'chapters_screen.dart';
 
 class ResultScreen extends ConsumerStatefulWidget {
   const ResultScreen({
@@ -88,6 +89,15 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
     Navigator.of(context).pop();
   }
 
+  Future<void> _chapters() async {
+    if (_leaving) return;
+    setState(() => _leaving = true);
+    _haptics.cancelPending();
+    unawaited(Navigator.of(context).pushReplacement<void, void>(
+      MaterialPageRoute(builder: (_) => const ChaptersScreen()),
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
     final s = widget.session,
@@ -95,6 +105,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
         p = ref.watch(profileProvider);
     final won = s.phase == GamePhase.won, daily = s.dailyDate != null;
     final count = ref.read(catalogProvider).requireValue.levels.length;
+    final chapterFinished = won && !daily && s.level.levelId == count && p.chapterComplete(count);
     return PopScope<void>(
       canPop: !_leaving,
       child: Scaffold(
@@ -152,6 +163,15 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
               ),
             ),
             const Eyebrow('POINTS'),
+            if (done.newBestScore || done.newBestTime || done.newStarRecord) ...[
+              const SizedBox(height: 12),
+              Text([
+                if (done.newBestScore) 'NEW BEST SCORE',
+                if (done.newBestTime) 'NEW BEST TIME',
+                if (done.newStarRecord) 'NEW STAR RECORD',
+              ].join(' · '), textAlign: TextAlign.center,
+                style: const TextStyle(color: EchoTheme.gold, fontSize: 12)),
+            ],
             const SizedBox(height: 24),
             Panel(
               child: Column(
@@ -192,6 +212,11 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
               ),
               const SizedBox(height: 10),
             ],
+            if (chapterFinished) ...[
+              ActionButton('REPLAY LEVELS', icon: Icons.grid_view_rounded,
+                onPressed: _leaving ? null : _chapters),
+              const SizedBox(height: 10),
+            ],
             if (!daily) ...[
               ActionButton(
                 won ? 'REPLAY' : 'TRY AGAIN',
@@ -213,6 +238,10 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                   Stat('${p.bestDailyStreak}', 'BEST DAILY STREAK'),
                 ],
               ),
+            ],
+            if (done.hintsEarned > 0) ...[
+              const SizedBox(height: 12),
+              Eyebrow('+${done.hintsEarned} HINTS · CHAPTER MILESTONE'),
             ],
             if (done.streakLabel != null) ...[
               const SizedBox(height: 20),
@@ -249,19 +278,17 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                 ),
               ),
             ],
-            if (done.newCollectible != null) ...[
+            for (final item in collectibles.where((c) => done.newCollectibles.contains(c.id))) ...[
               const SizedBox(height: 12),
               Panel(
                 child: Row(
                   children: [
                     ObjectArtwork(
-                      art: collectibles
-                          .firstWhere((c) => c.id == done.newCollectible)
-                          .art,
+                      art: item.art,
                     ),
                     const SizedBox(width: 14),
-                    const Expanded(
-                      child: Text('A mystery object joined your collection.'),
+                    Expanded(
+                      child: Text('${item.name}\n${item.description}\n${item.condition}'),
                     ),
                   ],
                 ),
@@ -280,12 +307,19 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                 ),
               ),
             ],
-            if (won && s.level.levelId == count && !daily) ...[
+            if (chapterFinished) ...[
               const SizedBox(height: 16),
-              const Text(
-                'CHAPTER 1 COMPLETE\nThe next door is not open. Yet.',
-                textAlign: TextAlign.center,
-              ),
+              Panel(child: Column(children: [
+                const Eyebrow('CHAPTER COMPLETE'),
+                const SizedBox(height: 12),
+                const Text('THE APARTMENT', textAlign: TextAlign.center),
+                const SizedBox(height: 12),
+                Text('${p.totalStars(count)} / ${count * 3} ★ · ${p.completionPercent(count)}% complete', textAlign: TextAlign.center),
+                Text('${p.roomsCompleted(count)} rooms solved · Best streak ${p.bestStreak}', textAlign: TextAlign.center),
+                Text('${p.collectibles.length} / ${collectibles.length} mystery objects found', textAlign: TextAlign.center),
+                const SizedBox(height: 12),
+                const Text('The next door is not open. Yet.', textAlign: TextAlign.center),
+              ])),
             ],
           ],
         ),

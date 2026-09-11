@@ -2,8 +2,8 @@ import 'package:flutter/foundation.dart';
 
 abstract final class GameConfig {
   static const maxLives = 5;
-  static const initialHints = 12;
-  static const hintReward = 2;
+  static const initialHints = 3;
+  static const hintRewards = {5: 2, 10: 2, 15: 2, 20: 3};
   static const hintCosts = [1, 2, 3];
   static const hintPenalties = [100, 250, 500];
   static const streakMultipliers = {0: 1.0, 3: 1.2, 5: 1.5, 10: 2.0};

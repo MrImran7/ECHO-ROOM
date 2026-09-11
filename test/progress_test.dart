@@ -12,12 +12,12 @@ import 'package:echo_room/achievements/definitions.dart';
 import 'test_support.dart';
 
 void main() {
-  test('win unlocks exactly the next level, awards first-clear hints, idempotently', () {
+  test('win unlocks exactly the next level without routine hint rewards, idempotently', () {
     final s = session();
     win(s);
     final done = completeSession(Progress(), s, DateTime(2026), 20);
     expect(done.progress.highestLevel, 2);
-    expect(done.progress.hints, GameConfig.initialHints + 2);
+    expect(done.progress.hints, GameConfig.initialHints);
     expect(done.progress.levels[1]!.stars, 3);
     expect(done.progress.achievements, contains('first_find'));
     expect(done.progress.achievements, contains('eagle_eye'));
@@ -72,7 +72,7 @@ void main() {
     expect(p.highestLevel, 20);
     expect(p.levels.length, 20);
     expect(p.achievements, achievements.map((a) => a.id).toSet());
-    expect(p.collectibles.length, 4);
+    expect(p.collectibles.length, 5);
     expect(p.streak, 20);
   });
   test(
