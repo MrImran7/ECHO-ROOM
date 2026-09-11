@@ -81,7 +81,7 @@ foreground hitboxes at three viewport widths, hints, replay isolation, invalid
 data and rendered before/after pixel differences. CI exports the 20 comparison
 images as **chapter-1-scene-review**. Images show original on the left and changed
 on the right. Existing progression, scoring and real Flame navigation tests also
-run. The formatter commit helper supports both named feature branches; no
+run. The formatter commit helper supports the named feature branches; no
 analysis, test or native build gate is skipped.
 
 ## Player progression
@@ -97,7 +97,8 @@ New players start with 3 hint units. First clears of rooms 5, 10 and 15 award 2;
 room 20 awards 3. Existing hint balances are preserved. Collection holds the four
 story milestone objects plus a watch for earning 3 stars in Room 12. Definitions
 live in `lib/achievements/` and `lib/collection/`; result processing remains in
-`ProgressionService`'s `completeSession`, outside the engine/render loop.
+`completeSession` in `lib/services/progression_service.dart`, outside the
+engine/render loop.
 
 The version-1 save format gains optional cumulative solve, wrong-tap and hint-use
 fields. Older saves retain all records/settings; known completed rooms seed the
