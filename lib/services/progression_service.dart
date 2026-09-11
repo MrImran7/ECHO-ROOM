@@ -25,7 +25,10 @@ class Completion {
   final bool newBestScore, newBestTime, newStarRecord;
   final int hintsEarned;
   final Set<String> additionalCollectibles;
-  Set<String> get newCollectibles => {if (newCollectible != null) newCollectible!, ...additionalCollectibles};
+  Set<String> get newCollectibles => {
+    if (newCollectible != null) newCollectible!,
+    ...additionalCollectibles,
+  };
   final Progress progress;
   final ScoreResult score;
   final Set<String> newAchievements;
@@ -125,12 +128,18 @@ Completion completeSession(
     if (won) {
       foundCollectibles = {
         for (final item in collectibles)
-          if (item.satisfied(next) && !p.collectibles.contains(item.id)) item.id,
+          if (item.satisfied(next) && !p.collectibles.contains(item.id))
+            item.id,
       };
-      next = next.patch({'collectibles': {...next.collectibles, ...foundCollectibles}.toList()});
+      next = next.patch({
+        'collectibles': {...next.collectibles, ...foundCollectibles}.toList(),
+      });
     }
   }
-  next = next.patch({'streak': streak, 'bestStreak': math.max(p.bestStreak, streak)});
+  next = next.patch({
+    'streak': streak,
+    'bestStreak': math.max(p.bestStreak, streak),
+  });
   final unlocked = unlockedAchievements(next, chapterSize);
   final runs = [...p.completedRuns, s.runId];
   next = next.patch({

@@ -93,9 +93,11 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
     if (_leaving) return;
     setState(() => _leaving = true);
     _haptics.cancelPending();
-    unawaited(Navigator.of(context).pushReplacement<void, void>(
-      MaterialPageRoute(builder: (_) => const ChaptersScreen()),
-    ));
+    unawaited(
+      Navigator.of(context).pushReplacement<void, void>(
+        MaterialPageRoute(builder: (_) => const ChaptersScreen()),
+      ),
+    );
   }
 
   @override
@@ -105,7 +107,8 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
         p = ref.watch(profileProvider);
     final won = s.phase == GamePhase.won, daily = s.dailyDate != null;
     final count = ref.read(catalogProvider).requireValue.levels.length;
-    final chapterFinished = won && !daily && s.level.levelId == count && p.chapterComplete(count);
+    final chapterFinished =
+        won && !daily && s.level.levelId == count && p.chapterComplete(count);
     return PopScope<void>(
       canPop: !_leaving,
       child: Scaffold(
@@ -163,14 +166,19 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
               ),
             ),
             const Eyebrow('POINTS'),
-            if (done.newBestScore || done.newBestTime || done.newStarRecord) ...[
+            if (done.newBestScore ||
+                done.newBestTime ||
+                done.newStarRecord) ...[
               const SizedBox(height: 12),
-              Text([
-                if (done.newBestScore) 'NEW BEST SCORE',
-                if (done.newBestTime) 'NEW BEST TIME',
-                if (done.newStarRecord) 'NEW STAR RECORD',
-              ].join(' · '), textAlign: TextAlign.center,
-                style: const TextStyle(color: EchoTheme.gold, fontSize: 12)),
+              Text(
+                [
+                  if (done.newBestScore) 'NEW BEST SCORE',
+                  if (done.newBestTime) 'NEW BEST TIME',
+                  if (done.newStarRecord) 'NEW STAR RECORD',
+                ].join(' · '),
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: EchoTheme.gold, fontSize: 12),
+              ),
             ],
             const SizedBox(height: 24),
             Panel(
@@ -213,8 +221,11 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
               const SizedBox(height: 10),
             ],
             if (chapterFinished) ...[
-              ActionButton('REPLAY LEVELS', icon: Icons.grid_view_rounded,
-                onPressed: _leaving ? null : _chapters),
+              ActionButton(
+                'REPLAY LEVELS',
+                icon: Icons.grid_view_rounded,
+                onPressed: _leaving ? null : _chapters,
+              ),
               const SizedBox(height: 10),
             ],
             if (!daily) ...[
@@ -278,17 +289,19 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                 ),
               ),
             ],
-            for (final item in collectibles.where((c) => done.newCollectibles.contains(c.id))) ...[
+            for (final item in collectibles.where(
+              (c) => done.newCollectibles.contains(c.id),
+            )) ...[
               const SizedBox(height: 12),
               Panel(
                 child: Row(
                   children: [
-                    ObjectArtwork(
-                      art: item.art,
-                    ),
+                    ObjectArtwork(art: item.art),
                     const SizedBox(width: 14),
                     Expanded(
-                      child: Text('${item.name}\n${item.description}\n${item.condition}'),
+                      child: Text(
+                        '${item.name}\n${item.description}\n${item.condition}',
+                      ),
                     ),
                   ],
                 ),
@@ -309,17 +322,33 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
             ],
             if (chapterFinished) ...[
               const SizedBox(height: 16),
-              Panel(child: Column(children: [
-                const Eyebrow('CHAPTER COMPLETE'),
-                const SizedBox(height: 12),
-                const Text('THE APARTMENT', textAlign: TextAlign.center),
-                const SizedBox(height: 12),
-                Text('${p.totalStars(count)} / ${count * 3} ★ · ${p.completionPercent(count)}% complete', textAlign: TextAlign.center),
-                Text('${p.roomsCompleted(count)} rooms solved · Best streak ${p.bestStreak}', textAlign: TextAlign.center),
-                Text('${p.collectibles.length} / ${collectibles.length} mystery objects found', textAlign: TextAlign.center),
-                const SizedBox(height: 12),
-                const Text('The next door is not open. Yet.', textAlign: TextAlign.center),
-              ])),
+              Panel(
+                child: Column(
+                  children: [
+                    const Eyebrow('CHAPTER COMPLETE'),
+                    const SizedBox(height: 12),
+                    const Text('THE APARTMENT', textAlign: TextAlign.center),
+                    const SizedBox(height: 12),
+                    Text(
+                      '${p.totalStars(count)} / ${count * 3} ★ · ${p.completionPercent(count)}% complete',
+                      textAlign: TextAlign.center,
+                    ),
+                    Text(
+                      '${p.roomsCompleted(count)} rooms solved · Best streak ${p.bestStreak}',
+                      textAlign: TextAlign.center,
+                    ),
+                    Text(
+                      '${p.collectibles.length} / ${collectibles.length} mystery objects found',
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 12),
+                    const Text(
+                      'The next door is not open. Yet.',
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
             ],
           ],
         ),

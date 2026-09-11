@@ -44,7 +44,10 @@ void main() {
     final s = session();
     win(s, elapsed: .5);
     final first = completeSession(Progress(), s, now, 20);
-    expect(first.newBestScore && first.newBestTime && first.newStarRecord, true);
+    expect(
+      first.newBestScore && first.newBestTime && first.newStarRecord,
+      true,
+    );
     // Reset only the active streak to compare equal scoring inputs.
     final baseline = first.progress.patch({'streak': 0});
     final equal = session(runId: 'equal');
@@ -56,7 +59,10 @@ void main() {
     final worse = completeSession(baseline, slower, now, 20);
     expect(worse.score.stars, 1);
     expect(worse.progress.levels[1]!.toJson(), baseline.levels[1]!.toJson());
-    expect(worse.newBestScore || worse.newBestTime || worse.newStarRecord, false);
+    expect(
+      worse.newBestScore || worse.newBestTime || worse.newStarRecord,
+      false,
+    );
     final faster = session(runId: 'fast');
     win(faster, elapsed: .2);
     final better = completeSession(baseline, faster, now, 20);
@@ -81,7 +87,12 @@ void main() {
     expect(tapped, true);
     s.advance(.5);
     win(s);
-    final done = completeSession(Progress(streak: 9, bestStreak: 9), s, now, 20);
+    final done = completeSession(
+      Progress(streak: 9, bestStreak: 9),
+      s,
+      now,
+      20,
+    );
     expect(done.progress.streak, 10);
     expect(done.progress.bestStreak, 10);
     expect(done.newAchievements, contains('streak_master'));
@@ -98,44 +109,52 @@ void main() {
     expect(Progress.fromJson(lost.toJson()).bestStreak, 10);
   });
 
-  test('replaying one room cannot farm distinct-room achievements or hints', () {
-    var p = Progress();
-    for (var i = 0; i < 20; i++) {
-      final s = session(runId: '$i');
-      win(s);
-      p = completeSession(p, s, now, 20).progress;
-    }
-    expect(p.achievements, isNot(contains('perfect_memory')));
-    expect(p.achievements, isNot(contains('no_help')));
-    expect(p.achievements, isNot(contains('perfectionist')));
-    expect(p.totalStars(20), 3);
-    expect(p.hints, GameConfig.initialHints);
-    expect(p.chapterComplete(20), false);
-  });
+  test(
+    'replaying one room cannot farm distinct-room achievements or hints',
+    () {
+      var p = Progress();
+      for (var i = 0; i < 20; i++) {
+        final s = session(runId: '$i');
+        win(s);
+        p = completeSession(p, s, now, 20).progress;
+      }
+      expect(p.achievements, isNot(contains('perfect_memory')));
+      expect(p.achievements, isNot(contains('no_help')));
+      expect(p.achievements, isNot(contains('perfectionist')));
+      expect(p.totalStars(20), 3);
+      expect(p.hints, GameConfig.initialHints);
+      expect(p.chapterComplete(20), false);
+    },
+  );
 
-  test('missing additive fields preserve old records, balances and settings', () {
-    final p = Progress.fromJson({
-      'version': 1,
-      'highestLevel': 6,
-      'hints': 22,
-      'bestStreak': 5,
-      'settings': {'music': false, 'sound': false, 'haptics': false},
-      'levels': {'5': {'stars': 2, 'score': 1700, 'bestTime': 2.5}},
-      'collectibles': ['brass_key'],
-    });
-    expect(p.correctAnswers, 1);
-    expect(p.wrongTaps, 0);
-    expect(p.hintsUsed, 0);
-    expect(p.hints, 22);
-    expect(p.settings.sound, false);
-    expect(p.bestResponseTime, 2.5);
-    final s = session(level: 5);
-    win(s);
-    final done = completeSession(p, s, now, 20);
-    expect(done.hintsEarned, 0);
-    expect(done.newCollectibles, isEmpty);
-    expect(done.progress.levels[5]!.stars, 3);
-  });
+  test(
+    'missing additive fields preserve old records, balances and settings',
+    () {
+      final p = Progress.fromJson({
+        'version': 1,
+        'highestLevel': 6,
+        'hints': 22,
+        'bestStreak': 5,
+        'settings': {'music': false, 'sound': false, 'haptics': false},
+        'levels': {
+          '5': {'stars': 2, 'score': 1700, 'bestTime': 2.5},
+        },
+        'collectibles': ['brass_key'],
+      });
+      expect(p.correctAnswers, 1);
+      expect(p.wrongTaps, 0);
+      expect(p.hintsUsed, 0);
+      expect(p.hints, 22);
+      expect(p.settings.sound, false);
+      expect(p.bestResponseTime, 2.5);
+      final s = session(level: 5);
+      win(s);
+      final done = completeSession(p, s, now, 20);
+      expect(done.hintsEarned, 0);
+      expect(done.newCollectibles, isEmpty);
+      expect(done.progress.levels[5]!.stars, 3);
+    },
+  );
 
   test('chapter completion requires every room, not just reaching Room 20', () {
     final s = session(level: 20);
@@ -151,10 +170,17 @@ void main() {
     final repo = MemoryProgressRepository();
     final s = session(level: 5);
     win(s);
-    repo.value = completeSession(Progress(streak: 9), s, now, 20).progress.patch({
-      'settings': const UserSettings(music: false, sound: false, haptics: false).toJson(),
-      'wrongTaps': 8, 'hintsUsed': 2, 'lives': 1,
-    });
+    repo.value = completeSession(Progress(streak: 9), s, now, 20).progress
+        .patch({
+          'settings': const UserSettings(
+            music: false,
+            sound: false,
+            haptics: false,
+          ).toJson(),
+          'wrongTaps': 8,
+          'hintsUsed': 2,
+          'lives': 1,
+        });
     final c = await ready(repo);
     addTearDown(c.dispose);
     await c.read(profileProvider.notifier).reset();
@@ -163,26 +189,29 @@ void main() {
     expect(restored.settings.haptics, false);
   });
 
-  test('hint spending cannot become negative and completed stats count hints once', () async {
-    final repo = MemoryProgressRepository();
-    final c = await ready(repo);
-    addTearDown(c.dispose);
-    await c.read(profileProvider.notifier).commit(Progress(hints: 0));
-    final controller = c.read(sessionProvider.notifier);
-    await controller.start(1);
-    reachAnswer(controller.game!);
-    await controller.hint();
-    expect(controller.game!.hints, 0);
-    expect((await repo.load()).hints, 0);
-    // Test rule accounting separately from the controller's atomic spending.
-    final s = session();
-    reachAnswer(s);
-    s.useHint();
-    win(s);
-    final done = completeSession(Progress(hints: 0), s, now, 20);
-    expect(done.progress.hints, 0);
-    expect(done.progress.hintsUsed, 1);
-    expect(done.score.stars, lessThan(3));
-    expect(completeSession(done.progress, s, now, 20).progress.hintsUsed, 1);
-  });
+  test(
+    'hint spending cannot become negative and completed stats count hints once',
+    () async {
+      final repo = MemoryProgressRepository();
+      final c = await ready(repo);
+      addTearDown(c.dispose);
+      await c.read(profileProvider.notifier).commit(Progress(hints: 0));
+      final controller = c.read(sessionProvider.notifier);
+      await controller.start(1);
+      reachAnswer(controller.game!);
+      await controller.hint();
+      expect(controller.game!.hints, 0);
+      expect((await repo.load()).hints, 0);
+      // Test rule accounting separately from the controller's atomic spending.
+      final s = session();
+      reachAnswer(s);
+      s.useHint();
+      win(s);
+      final done = completeSession(Progress(hints: 0), s, now, 20);
+      expect(done.progress.hints, 0);
+      expect(done.progress.hintsUsed, 1);
+      expect(done.score.stars, lessThan(3));
+      expect(completeSession(done.progress, s, now, 20).progress.hintsUsed, 1);
+    },
+  );
 }

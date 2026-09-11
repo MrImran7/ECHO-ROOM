@@ -67,14 +67,26 @@ class CollectionScreen extends ConsumerWidget {
             const SizedBox(height: 12),
           ],
           const SizedBox(height: 20),
-          Eyebrow('ACHIEVEMENTS · ${p.achievements.length} / ${achievements.length}'),
+          Eyebrow(
+            'ACHIEVEMENTS · ${p.achievements.length} / ${achievements.length}',
+          ),
           const SizedBox(height: 12),
-          Panel(child: Column(children: [
-            const Eyebrow('YOUR OBSERVATION RECORD'),
-            const SizedBox(height: 12),
-            Text('${p.correctAnswers} solves · ${p.wrongTaps} wrong taps · ${p.hintsUsed} hints used', textAlign: TextAlign.center),
-            Text('Best streak ${p.bestStreak} · Best time ${p.bestResponseTime == null ? '—' : '${p.bestResponseTime!.toStringAsFixed(2)}s'}', textAlign: TextAlign.center),
-          ])),
+          Panel(
+            child: Column(
+              children: [
+                const Eyebrow('YOUR OBSERVATION RECORD'),
+                const SizedBox(height: 12),
+                Text(
+                  '${p.correctAnswers} solves · ${p.wrongTaps} wrong taps · ${p.hintsUsed} hints used',
+                  textAlign: TextAlign.center,
+                ),
+                Text(
+                  'Best streak ${p.bestStreak} · Best time ${p.bestResponseTime == null ? '—' : '${p.bestResponseTime!.toStringAsFixed(2)}s'}',
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
           for (final a in achievements)
             ListTile(
               contentPadding: const EdgeInsets.symmetric(vertical: 5),

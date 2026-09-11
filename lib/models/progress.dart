@@ -118,7 +118,8 @@ class Progress {
       hints: j['hints'] as int? ?? GameConfig.initialHints,
       streak: j['streak'] as int? ?? 0,
       bestStreak: j['bestStreak'] as int? ?? 0,
-      correctAnswers: j['correctAnswers'] as int? ?? (j['levels'] as Json? ?? {}).length,
+      correctAnswers:
+          j['correctAnswers'] as int? ?? (j['levels'] as Json? ?? {}).length,
       wrongTaps: j['wrongTaps'] as int? ?? 0,
       hintsUsed: j['hintsUsed'] as int? ?? 0,
       dailyStreak: j['dailyStreak'] as int? ?? 0,
@@ -174,14 +175,17 @@ class Progress {
   };
 
   /// Derived from records so replays cannot inflate chapter mastery.
-  int roomsCompleted(int count) => levels.keys.where((id) => id >= 1 && id <= count).length;
+  int roomsCompleted(int count) =>
+      levels.keys.where((id) => id >= 1 && id <= count).length;
   int totalStars(int count) => levels.entries
       .where((entry) => entry.key >= 1 && entry.key <= count)
       .fold(0, (sum, entry) => sum + entry.value.stars);
   bool chapterComplete(int count) => roomsCompleted(count) == count;
-  int completionPercent(int count) => count == 0 ? 0 : (100 * roomsCompleted(count) / count).round();
-  double? get bestResponseTime => levels.values.isEmpty ? null :
-      levels.values.map((r) => r.bestTime).reduce((a, b) => a < b ? a : b);
+  int completionPercent(int count) =>
+      count == 0 ? 0 : (100 * roomsCompleted(count) / count).round();
+  double? get bestResponseTime => levels.values.isEmpty
+      ? null
+      : levels.values.map((r) => r.bestTime).reduce((a, b) => a < b ? a : b);
 
   /// Patch through the schema codec: one serialization contract for persistence
   /// and updates. Progress is small; writes occur at decisions, never per frame.

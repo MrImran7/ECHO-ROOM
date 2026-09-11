@@ -141,10 +141,7 @@ void main() {
       }
       await reveal(tester, 'IMPOSSIBLE · 20 IN A ROW');
       await reveal(tester, '“${s.level.storyText}”');
-      await reveal(
-        tester,
-        'CHAPTER COMPLETE',
-      );
+      await reveal(tester, 'CHAPTER COMPLETE');
       final restored = await repo.load();
       expect(restored.highestLevel, 20);
       expect(restored.levels.length, 20);

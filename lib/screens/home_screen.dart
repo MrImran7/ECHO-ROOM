@@ -138,7 +138,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             ),
           ],
           const SizedBox(height: 12),
-          Eyebrow('${p.totalStars(catalog.levels.length)} / ${catalog.levels.length * 3} ★ · THE APARTMENT'),
+          Eyebrow(
+            '${p.totalStars(catalog.levels.length)} / ${catalog.levels.length * 3} ★ · THE APARTMENT',
+          ),
           const SizedBox(height: 25),
           ActionButton(
             p.activeSession != null ? 'CONTINUE ROOM' : 'PLAY',
