@@ -289,7 +289,8 @@ void main() {
           null,
         ),
       );
-      final haptics = HapticsService(platform: TargetPlatform.iOS)..enabled = false;
+      final haptics = HapticsService(platform: TargetPlatform.iOS)
+        ..enabled = false;
       await haptics.correct();
       await haptics.wrong();
       await haptics.timeout();

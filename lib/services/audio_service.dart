@@ -176,8 +176,13 @@ class HapticsService {
   }
 
   bool _allowed(String event) {
-    final reason = _disposed ? 'disposed' : !_enabled ? 'disabled' :
-        _suspended ? 'lifecycle suspended' : null;
+    final reason = _disposed
+        ? 'disposed'
+        : !_enabled
+        ? 'disabled'
+        : _suspended
+        ? 'lifecycle suspended'
+        : null;
     if (reason == null) return true;
     _log('suppressed: $event / $reason');
     return false;
@@ -204,8 +209,12 @@ class HapticsService {
     _wrongCooldown.stop();
   }
 
-  Future<void> _dispatch(String event, String api,
-      Future<void> Function() action, int generation) async {
+  Future<void> _dispatch(
+    String event,
+    String api,
+    Future<void> Function() action,
+    int generation,
+  ) async {
     if (!_allowed(event)) return;
     if (generation != _generation) {
       _log('suppressed: $event / superseded');
@@ -223,8 +232,12 @@ class HapticsService {
   // Select LONG_PRESS up front on Android, never impact + generic together.
   // This stays on View feedback, respecting system preferences without a
   // VIBRATE permission or a custom native vibrator implementation.
-  Future<void> _gameplay(String event, String iosApi,
-      Future<void> Function() iosAction, int generation) => _dispatch(
+  Future<void> _gameplay(
+    String event,
+    String iosApi,
+    Future<void> Function() iosAction,
+    int generation,
+  ) => _dispatch(
     event,
     _platform == TargetPlatform.android ? 'vibrate (LONG_PRESS)' : iosApi,
     _platform == TargetPlatform.android ? HapticFeedback.vibrate : iosAction,
@@ -236,42 +249,84 @@ class HapticsService {
     // Success always supersedes a pending negative pattern/cooldown.
     _wrongCooldown.stop();
     _wrongCooldown.reset();
-    await _gameplay('correct', 'mediumImpact', HapticFeedback.mediumImpact, _generation);
+    await _gameplay(
+      'correct',
+      'mediumImpact',
+      HapticFeedback.mediumImpact,
+      _generation,
+    );
   }
 
   Future<void> wrong() async {
     if (!_allowed('wrong')) return;
     if (_wrongCooldown.isRunning &&
-        _wrongCooldown.elapsedMilliseconds < (GameConfig.tapCooldown * 1000).round()) {
+        _wrongCooldown.elapsedMilliseconds <
+            (GameConfig.tapCooldown * 1000).round()) {
       _log('suppressed: wrong / cooldown');
       return;
     }
-    _wrongCooldown..reset()..start();
+    _wrongCooldown
+      ..reset()
+      ..start();
     final generation = ++_generation;
-    await _gameplay('wrong', 'heavyImpact', HapticFeedback.heavyImpact, generation);
+    await _gameplay(
+      'wrong',
+      'heavyImpact',
+      HapticFeedback.heavyImpact,
+      generation,
+    );
     // Android uses a deliberate two-beat negative signal, not two fallback APIs.
     if (_platform == TargetPlatform.android) {
-      await Future<void>.delayed(const Duration(milliseconds: GameConfig.hapticPatternGapMilliseconds));
-      await _gameplay('wrong second beat', 'heavyImpact', HapticFeedback.heavyImpact, generation);
+      await Future<void>.delayed(
+        const Duration(milliseconds: GameConfig.hapticPatternGapMilliseconds),
+      );
+      await _gameplay(
+        'wrong second beat',
+        'heavyImpact',
+        HapticFeedback.heavyImpact,
+        generation,
+      );
     }
   }
 
   Future<void> timeout() async {
     cancelPending();
-    await _gameplay('timeout', 'mediumImpact', HapticFeedback.mediumImpact, _generation);
+    await _gameplay(
+      'timeout',
+      'mediumImpact',
+      HapticFeedback.mediumImpact,
+      _generation,
+    );
   }
 
   Future<void> complete() async {
     cancelPending();
-    await _gameplay('complete', 'selectionClick', HapticFeedback.selectionClick, _generation);
+    await _gameplay(
+      'complete',
+      'selectionClick',
+      HapticFeedback.selectionClick,
+      _generation,
+    );
   }
 
   Future<void> celebrate() async {
     if (!_allowed('celebrate')) return;
     final generation = ++_generation;
-    await _gameplay('celebrate', 'selectionClick', HapticFeedback.selectionClick, generation);
-    await Future<void>.delayed(const Duration(milliseconds: GameConfig.hapticPatternGapMilliseconds));
-    await _gameplay('celebrate second beat', 'lightImpact', HapticFeedback.lightImpact, generation);
+    await _gameplay(
+      'celebrate',
+      'selectionClick',
+      HapticFeedback.selectionClick,
+      generation,
+    );
+    await Future<void>.delayed(
+      const Duration(milliseconds: GameConfig.hapticPatternGapMilliseconds),
+    );
+    await _gameplay(
+      'celebrate second beat',
+      'lightImpact',
+      HapticFeedback.lightImpact,
+      generation,
+    );
   }
 
   /// Raw API probes use the same settings/lifecycle guards as gameplay.
@@ -280,11 +335,26 @@ class HapticsService {
     cancelPending();
     switch (probe) {
       case HapticProbe.light:
-        await _dispatch('test light', 'lightImpact', HapticFeedback.lightImpact, _generation);
+        await _dispatch(
+          'test light',
+          'lightImpact',
+          HapticFeedback.lightImpact,
+          _generation,
+        );
       case HapticProbe.medium:
-        await _dispatch('test medium', 'mediumImpact', HapticFeedback.mediumImpact, _generation);
+        await _dispatch(
+          'test medium',
+          'mediumImpact',
+          HapticFeedback.mediumImpact,
+          _generation,
+        );
       case HapticProbe.generic:
-        await _dispatch('test generic', 'vibrate', HapticFeedback.vibrate, _generation);
+        await _dispatch(
+          'test generic',
+          'vibrate',
+          HapticFeedback.vibrate,
+          _generation,
+        );
     }
   }
 }
