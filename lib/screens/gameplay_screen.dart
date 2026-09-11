@@ -19,13 +19,15 @@ class GameplayScreen extends ConsumerStatefulWidget {
   ConsumerState<GameplayScreen> createState() => _GameplayScreenState();
 }
 
-class _GameplayScreenState extends ConsumerState<GameplayScreen> {
+class _GameplayScreenState extends ConsumerState<GameplayScreen>
+    with WidgetsBindingObserver {
   late final GameSession _session;
   late final Widget _viewport;
-  bool _allowPop = false, _resultsQueued = false;
+  bool _allowPop = false, _resultsQueued = false, _openingResult = false;
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     final controller = ref.read(sessionProvider.notifier);
     _session = controller.game!;
     _viewport = GameViewport(
@@ -43,6 +45,21 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen> {
       },
     );
   }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _queueResults();
+  }
+
+  bool get _foreground =>
+      WidgetsBinding.instance.lifecycleState == null ||
+      WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed;
 
   Future<void> _home() async {
     final c = ref.read(sessionProvider.notifier);
@@ -63,10 +80,17 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen> {
 
   void _queueResults() {
     final c = ref.read(sessionProvider.notifier);
-    if (_resultsQueued || !_session.finished || c.completion == null) return;
+    if (_resultsQueued ||
+        _openingResult ||
+        !_foreground ||
+        !_session.finished ||
+        c.completion == null)
+      return;
     _resultsQueued = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted || !(ModalRoute.of(context)?.isCurrent ?? false)) {
+      if (!mounted ||
+          !_foreground ||
+          !(ModalRoute.of(context)?.isCurrent ?? false)) {
         _resultsQueued = false;
         return;
       }
@@ -76,7 +100,8 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen> {
 
   Future<void> _results() async {
     final done = ref.read(sessionProvider.notifier).completion;
-    if (done == null || !mounted) return;
+    if (done == null || !mounted || _openingResult || !_foreground) return;
+    _openingResult = true;
     setState(() => _allowPop = true);
     await Navigator.of(context).pushReplacement<void, void>(
       MaterialPageRoute(
@@ -226,10 +251,15 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen> {
                                       color: EchoTheme.background,
                                       child: Center(
                                         child: AnimatedSwitcher(
-                                          duration: const Duration(
-                                            milliseconds: GameConfig
-                                                .transitionMilliseconds,
-                                          ),
+                                          duration:
+                                              MediaQuery.disableAnimationsOf(
+                                                context,
+                                              )
+                                              ? Duration.zero
+                                              : const Duration(
+                                                  milliseconds: GameConfig
+                                                      .transitionMilliseconds,
+                                                ),
                                           child: Text(
                                             s.phase == GamePhase.countdown
                                                 ? '${s.remaining.ceil().clamp(1, 3)}'
@@ -345,6 +375,7 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen> {
                                 child: OutlinedButton.icon(
                                   onPressed:
                                       s.phase == GamePhase.answering &&
+                                          !c.hinting &&
                                           s.hints < 3 &&
                                           s.dailyDate == null
                                       ? c.hint

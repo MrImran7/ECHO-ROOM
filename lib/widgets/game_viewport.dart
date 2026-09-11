@@ -32,6 +32,7 @@ class GameViewport extends StatefulWidget {
 class _GameViewportState extends State<GameViewport>
     with WidgetsBindingObserver {
   late EchoGame _game;
+  bool _answerGesture = false;
   @override
   void initState() {
     super.initState();
@@ -64,6 +65,7 @@ class _GameViewportState extends State<GameViewport>
     if (state == AppLifecycleState.resumed) {
       _game.resumeEngine();
     } else {
+      _answerGesture = false;
       widget.onPause();
       _game.pauseEngine();
     }
@@ -90,11 +92,19 @@ class _GameViewportState extends State<GameViewport>
               'Apartment scene. Tap the object that changed, or where it was.',
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onTapUp: (event) => widget.onTap(
-              event.localPosition.dx / bounds.maxWidth,
-              event.localPosition.dy / bounds.maxHeight,
-              _game.hitPadding,
-            ),
+            onTapDown: (_) {
+              _answerGesture = widget.session.phase == GamePhase.answering;
+            },
+            onTapCancel: () => _answerGesture = false,
+            onTapUp: (event) {
+              if (!_answerGesture) return;
+              _answerGesture = false;
+              widget.onTap(
+                event.localPosition.dx / bounds.maxWidth,
+                event.localPosition.dy / bounds.maxHeight,
+                _game.hitPadding,
+              );
+            },
             child: GameWidget<EchoGame>(
               key: ObjectKey(_game),
               game: _game,

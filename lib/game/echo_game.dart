@@ -7,7 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../models/scene.dart';
+import '../core/config.dart';
 import 'room_art.dart';
+import 'feedback_motion.dart';
 import 'session.dart';
 
 class EchoGame extends FlameGame<World> {
@@ -28,6 +30,10 @@ class EchoGame extends FlameGame<World> {
   bool showHitboxes;
   bool reduceMotion = false;
   double _time = 0;
+  ui.Picture? _background;
+  TextPainter? _diagnostics;
+  double _sampleTime = 0;
+  int _sampleFrames = 0;
   @override
   Color backgroundColor() => const Color(0xff354c45);
   @override
@@ -47,6 +53,9 @@ class EchoGame extends FlameGame<World> {
         art.images[path] = (await codec.getNextFrame()).image;
         codec.dispose();
       }
+      final recorder = ui.PictureRecorder();
+      art.background(Canvas(recorder));
+      _background = recorder.endRecording();
     } catch (_) {
       for (final image in art.images.values) {
         image.dispose();
@@ -64,8 +73,27 @@ class EchoGame extends FlameGame<World> {
       onReady();
       return;
     }
-    _time += dt;
+    if (!(session()?.paused ?? false)) _time += dt;
     onTick(dt);
+    if (GameConfig.debugTools && showHitboxes && dt > 0 && dt.isFinite) {
+      _sampleTime += dt;
+      _sampleFrames++;
+      if (_sampleTime >= GameConfig.diagnosticsInterval) {
+        final s = session();
+        _diagnostics ??= TextPainter(textDirection: TextDirection.ltr);
+        _diagnostics!.text = TextSpan(
+          text:
+              'L${s?.level.levelId} ${s?.phase.name}  '
+              '${(_sampleFrames / _sampleTime).round()} FPS\n'
+              'phase ${s?.remaining.toStringAsFixed(1)}s  '
+              'answer ${s?.answerElapsed.toStringAsFixed(1)}s',
+          style: const TextStyle(fontSize: 12, color: Colors.white),
+        );
+        _diagnostics!.layout(maxWidth: 384);
+        _sampleTime = 0;
+        _sampleFrames = 0;
+      }
+    }
   }
 
   @override
@@ -74,7 +102,12 @@ class EchoGame extends FlameGame<World> {
     canvas.save();
     canvas.scale(size.x / 400, size.y / 440);
     canvas.clipRect(const Rect.fromLTWH(0, 0, 400, 440));
-    art.background(canvas);
+    final background = _background;
+    if (background != null) {
+      canvas.drawPicture(background);
+    } else {
+      art.background(canvas);
+    }
     final s = session();
     final objects = s?.visibleRoom.objects ?? room.objects;
     // Catalog validates stable z-order, so no per-frame sorting is needed.
@@ -87,10 +120,15 @@ class EchoGame extends FlameGame<World> {
       art.object(
         canvas,
         o,
-        pulse: won && !reduceMotion ? 1 + .025 * math.sin(_time * 10) : 1,
+        pulse: won
+            ? FeedbackMotion.correctScale(
+                s!.phaseElapsed,
+                reduced: reduceMotion,
+              )
+            : 1,
         shake:
             !reduceMotion && selected && !won && (s?.feedbackRemaining ?? 0) > 0
-            ? math.sin(_time * 70) * 2
+            ? FeedbackMotion.wrongOffset(s!.phaseElapsed, reduced: reduceMotion)
             : 0,
       );
     }
@@ -123,7 +161,7 @@ class EchoGame extends FlameGame<World> {
         } else if (hinting && s.hints == 2) {
           canvas.drawCircle(
             center + const Offset(8, -8),
-            34 + math.sin(_time * 5) * 6,
+            34 + (reduceMotion ? 0 : math.sin(_time * 5) * 6),
             p..color = const Color(0xaaf5e1a6),
           );
         } else {
@@ -132,18 +170,22 @@ class EchoGame extends FlameGame<World> {
               center: center,
               width: math.max(
                 36,
-                o.width * 400 * o.scale + 16 + math.sin(_time * 5) * 4,
+                o.width * 400 * o.scale +
+                    16 +
+                    (reduceMotion ? 0 : math.sin(_time * 5) * 4),
               ),
               height: math.max(
                 36,
-                o.height * 440 * o.scale + 16 + math.sin(_time * 5) * 4,
+                o.height * 440 * o.scale +
+                    16 +
+                    (reduceMotion ? 0 : math.sin(_time * 5) * 4),
               ),
             ),
             p,
           );
         }
       }
-      if (showHitboxes) {
+      if (GameConfig.debugTools && showHitboxes) {
         for (final region in s.hitTester.regions) {
           final o = region.object, padding = region.padding(hitPadding);
           canvas.save();
@@ -164,11 +206,10 @@ class EchoGame extends FlameGame<World> {
       }
       double darkness = 0;
       if (s.phase == GamePhase.flicker)
-        darkness = reduceMotion
-            ? .5
-            : (math.sin(s.phaseElapsed * 35) > 0)
-            ? .78
-            : .1;
+        darkness = FeedbackMotion.darkness(
+          s.phaseElapsed / s.duration,
+          reduced: reduceMotion,
+        );
       if (s.phase == GamePhase.loading ||
           s.phase == GamePhase.blackout ||
           s.paused ||
@@ -181,11 +222,22 @@ class EchoGame extends FlameGame<World> {
           Paint()..color = Color.fromRGBO(16, 23, 23, darkness),
         );
     }
+    if (GameConfig.debugTools && showHitboxes && _diagnostics != null) {
+      canvas.drawRect(
+        Rect.fromLTWH(4, 4, 392, _diagnostics!.height + 8),
+        Paint()..color = const Color(0xcc101717),
+      );
+      _diagnostics!.paint(canvas, const Offset(8, 8));
+    }
     canvas.restore();
   }
 
   @override
   void onRemove() {
+    _diagnostics?.dispose();
+    _diagnostics = null;
+    _background?.dispose();
+    _background = null;
     for (final image in art.images.values) {
       image.dispose();
     }

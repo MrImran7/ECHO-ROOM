@@ -19,7 +19,8 @@ class SessionController extends Notifier<int> {
   Completion? completion;
   Completion? _pendingCompletion;
   String? error;
-  bool _finishing = false, _starting = false;
+  bool _finishing = false, _starting = false, _hinting = false;
+  bool get hinting => _hinting;
   double _hudElapsed = 0, _checkpointElapsed = 0;
   int _lastCountdown = 4;
   bool _disposed = false;
@@ -140,6 +141,12 @@ class SessionController extends Notifier<int> {
     }
     if (s.phase == GamePhase.flicker && previous != s.phase)
       ref.read(audioProvider).cue(SoundCue.flicker);
+    if (s.lossReason == LossReason.timeout &&
+        previous != GamePhase.timedOut &&
+        previous != GamePhase.lost) {
+      ref.read(audioProvider).cue(SoundCue.timeout);
+      unawaited(ref.read(hapticsProvider).timeout());
+    }
     if (s.finished) {
       unawaited(_finish());
     }
@@ -178,6 +185,17 @@ class SessionController extends Notifier<int> {
   }
 
   Future<void> hint() async {
+    if (_hinting) return;
+    _hinting = true;
+    try {
+      await _hint();
+    } finally {
+      _hinting = false;
+      _notify();
+    }
+  }
+
+  Future<void> _hint() async {
     final s = game, p = ref.read(profileProvider);
     if (s == null || s.hints >= 3 || s.dailyDate != null) return;
     final cost = GameConfig.hintCosts[s.hints];
@@ -187,6 +205,7 @@ class SessionController extends Notifier<int> {
       return;
     }
     if (!s.useHint()) return;
+    _notify();
     error = null;
     ref.read(analyticsProvider).log('hint_used', {
       'level': s.level.levelId,
@@ -222,7 +241,7 @@ class SessionController extends Notifier<int> {
 
   void pause() {
     final s = game;
-    if (s == null || s.finished) return;
+    if (s == null || s.finished || s.paused) return;
     s.pause();
     _notify();
     unawaited(checkpoint());
@@ -286,11 +305,6 @@ class SessionController extends Notifier<int> {
         });
       for (final id in completion!.newAchievements) {
         ref.read(analyticsProvider).log('achievement_unlocked', {'id': id});
-      }
-      if (completion!.streakLabel != null ||
-          completion!.newAchievements.isNotEmpty) {
-        ref.read(audioProvider).cue(SoundCue.streak);
-        unawaited(ref.read(hapticsProvider).celebrate());
       }
       error = null;
     } catch (_) {

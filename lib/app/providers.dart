@@ -28,7 +28,11 @@ final audioProvider = Provider<AudioService>((ref) {
   ref.onDispose(() => unawaited(audio.dispose()));
   return audio;
 });
-final hapticsProvider = Provider<HapticsService>((ref) => HapticsService());
+final hapticsProvider = Provider<HapticsService>((ref) {
+  final haptics = HapticsService();
+  ref.onDispose(haptics.dispose);
+  return haptics;
+});
 final profileProvider = NotifierProvider<ProfileController, Progress>(
   ProfileController.new,
 );

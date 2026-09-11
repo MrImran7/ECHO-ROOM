@@ -1,10 +1,9 @@
-import 'dart:async';
-
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import '../models/progress.dart';
+import '../core/config.dart';
 
 enum SoundCue {
   menu,
@@ -12,6 +11,7 @@ enum SoundCue {
   flicker,
   correct,
   wrong,
+  timeout,
   streak,
   complete,
   mystery,
@@ -25,14 +25,44 @@ abstract interface class AudioService {
   Future<void> dispose();
 }
 
+/// Small injectable boundary for platform playback and deterministic service tests.
+abstract interface class AudioChannel {
+  Future<void> play(String asset, double volume);
+  Future<void> stop();
+  Future<void> pause();
+  Future<void> resume();
+  Future<void> loop();
+  Future<void> dispose();
+}
+
+class _PlatformChannel implements AudioChannel {
+  AudioPlayer? _player;
+  AudioPlayer get _active => _player ??= AudioPlayer();
+  @override
+  Future<void> play(String asset, double volume) =>
+      _active.play(AssetSource(asset), volume: volume);
+  @override
+  Future<void> stop() => _player?.stop() ?? Future.value();
+  @override
+  Future<void> pause() => _player?.pause() ?? Future.value();
+  @override
+  Future<void> resume() => _player?.resume() ?? Future.value();
+  @override
+  Future<void> loop() => _active.setReleaseMode(ReleaseMode.loop);
+  @override
+  Future<void> dispose() => _player?.dispose() ?? Future.value();
+}
+
 class LocalAudioService implements AudioService {
+  LocalAudioService({AudioChannel Function()? createChannel})
+    : _effects = (createChannel ?? _PlatformChannel.new)(),
+      _music = (createChannel ?? _PlatformChannel.new)();
   UserSettings _settings = const UserSettings();
-  final Map<SoundCue, AudioPlayer> _players = {};
-  final AudioPlayer _music = AudioPlayer();
-  Future<void> _musicQueue = Future.value();
+  final AudioChannel _effects, _music;
+  Future<void> _effectQueue = Future.value(), _musicQueue = Future.value();
   bool _started = false, _suspended = false, _disposed = false;
+  int _generation = 0;
   Future<void> _safe(Future<void> Function() action) async {
-    if (_disposed) return;
     try {
       await action();
     } catch (e) {
@@ -43,33 +73,51 @@ class LocalAudioService implements AudioService {
   @override
   void cue(SoundCue cue) {
     if (!_settings.sound || _suspended || _disposed) return;
-    unawaited(
-      _safe(() async {
-        final player = _players.putIfAbsent(cue, AudioPlayer.new);
-        await player.stop();
-        if (_disposed || _suspended || !_settings.sound) return;
-        await player.play(AssetSource('audio/${cue.name}.wav'), volume: .55);
+    final generation = ++_generation;
+    _effectQueue = _effectQueue.then(
+      (_) => _safe(() async {
+        if (_disposed || generation != _generation) return;
+        await _effects.stop();
+        if (_disposed ||
+            _suspended ||
+            !_settings.sound ||
+            generation != _generation)
+          return;
+        // Reuse the original subdued negative tone; no new asset is required.
+        final asset = cue == SoundCue.timeout ? 'wrong' : cue.name;
+        await _effects.play(
+          'audio/$asset.wav',
+          cue == SoundCue.timeout ? .3 : .55,
+        );
       }),
     );
   }
 
+  void _stopEffects() {
+    ++_generation;
+    _effectQueue = _effectQueue.then((_) => _safe(_effects.stop));
+  }
+
   @override
   void configure(UserSettings settings) {
+    if (_disposed) return;
     _settings = settings;
+    if (!settings.sound) _stopEffects();
     _syncMusic();
   }
 
   void _syncMusic() {
     _musicQueue = _musicQueue.then(
       (_) => _safe(() async {
+        if (_disposed) return;
         if (!_settings.music || _suspended) {
           await _music.pause();
           return;
         }
         if (!_started) {
-          await _music.setReleaseMode(ReleaseMode.loop);
+          await _music.loop();
           if (_disposed || _suspended || !_settings.music) return;
-          await _music.play(AssetSource('audio/ambient.wav'), volume: .15);
+          await _music.play('audio/ambient.wav', .15);
           _started = true;
         } else {
           await _music.resume();
@@ -80,32 +128,58 @@ class LocalAudioService implements AudioService {
 
   @override
   void suspend() {
+    if (_disposed || _suspended) return;
     _suspended = true;
+    _stopEffects();
     _syncMusic();
-    for (final p in _players.values) {
-      unawaited(_safe(p.pause));
-    }
   }
 
   @override
   void resume() {
+    if (_disposed) return;
     _suspended = false;
     _syncMusic();
   }
 
   @override
   Future<void> dispose() async {
+    if (_disposed) return;
     _disposed = true;
-    await _musicQueue;
-    for (final p in _players.values) {
-      await p.dispose();
-    }
-    await _music.dispose();
+    ++_generation;
+    await Future.wait([_effectQueue, _musicQueue]);
+    await _safe(_effects.dispose);
+    await _safe(_music.dispose);
   }
 }
 
 class HapticsService {
-  bool enabled = true;
+  bool _enabled = true, _suspended = false, _disposed = false;
+  int _generation = 0;
+  bool get enabled => _enabled;
+  set enabled(bool value) {
+    _enabled = value;
+    if (!value) _generation++;
+  }
+
+  bool get _available => _enabled && !_suspended && !_disposed;
+  void cancelPending() {
+    _generation++;
+  }
+
+  void suspend() {
+    _suspended = true;
+    cancelPending();
+  }
+
+  void resume() {
+    if (!_disposed) _suspended = false;
+  }
+
+  void dispose() {
+    _disposed = true;
+    _generation++;
+  }
+
   Future<void> _safe(Future<void> Function() action) async {
     try {
       await action();
@@ -115,17 +189,33 @@ class HapticsService {
   }
 
   Future<void> correct() async {
-    if (enabled) await _safe(HapticFeedback.lightImpact);
+    cancelPending();
+    if (_available) await _safe(HapticFeedback.lightImpact);
   }
 
   Future<void> wrong() async {
-    if (enabled) await _safe(HapticFeedback.heavyImpact);
+    cancelPending();
+    if (_available) await _safe(HapticFeedback.heavyImpact);
+  }
+
+  Future<void> timeout() async {
+    cancelPending();
+    if (_available) await _safe(HapticFeedback.mediumImpact);
+  }
+
+  Future<void> complete() async {
+    cancelPending();
+    if (_available) await _safe(HapticFeedback.selectionClick);
   }
 
   Future<void> celebrate() async {
-    if (!enabled) return;
+    if (!_available) return;
+    final generation = ++_generation;
     await _safe(HapticFeedback.selectionClick);
-    await Future<void>.delayed(const Duration(milliseconds: 90));
-    if (enabled) await _safe(HapticFeedback.lightImpact);
+    await Future<void>.delayed(
+      const Duration(milliseconds: GameConfig.hapticPatternGapMilliseconds),
+    );
+    if (_available && generation == _generation)
+      await _safe(HapticFeedback.lightImpact);
   }
 }
