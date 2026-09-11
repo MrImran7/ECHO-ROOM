@@ -38,17 +38,23 @@ void main() {
   testWidgets(
     'production provider requests Android platform feedback, not a fake',
     (tester) async {
+      final previousPlatform = debugDefaultTargetPlatformOverride;
       debugDefaultTargetPlatformOverride = TargetPlatform.android;
-      final c = ProviderContainer();
-      addTearDown(c.dispose);
-      final service = c.read(hapticsProvider);
-      expect(service.enabled, true);
-      await service.correct();
-      // A null argument selects Flutter's generic LONG_PRESS on Android.
-      expect(calls, [null]);
-      await service.complete();
-      await service.timeout();
-      expect(calls, [null, null, null]);
+      try {
+        final c = ProviderContainer();
+        addTearDown(c.dispose);
+        final service = c.read(hapticsProvider);
+        expect(service.enabled, true);
+        await service.correct();
+        // A null argument selects Flutter's generic LONG_PRESS on Android.
+        expect(calls, [null]);
+        await service.complete();
+        await service.timeout();
+        expect(calls, [null, null, null]);
+      } finally {
+        // Restore before Flutter verifies widget-test invariants.
+        debugDefaultTargetPlatformOverride = previousPlatform;
+      }
     },
   );
 
