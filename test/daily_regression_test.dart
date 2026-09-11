@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:echo_room/app/providers.dart';
 import 'package:echo_room/daily/daily_service.dart';
-import 'package:echo_room/game/session.dart';
 import 'package:echo_room/game/session_controller.dart';
 import 'package:echo_room/models/progress.dart';
 import 'package:echo_room/services/progression_service.dart';
