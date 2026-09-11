@@ -86,7 +86,11 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
     if (_leaving) return;
     setState(() => _leaving = true);
     _haptics.cancelPending();
-    Navigator.of(context).pop();
+    if (widget.session.dailyDate != null) {
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    } else {
+      Navigator.of(context).pop();
+    }
   }
 
   Future<void> _chapters() async {
@@ -124,7 +128,9 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
               size: 48,
             ),
             const SizedBox(height: 22),
-            Eyebrow(won ? 'ROOM COMPLETE' : 'ROOM UNRESOLVED'),
+            Eyebrow(daily
+                ? (won ? 'DAILY ROOM COMPLETE' : 'DAILY ROOM MISSED')
+                : (won ? 'ROOM COMPLETE' : 'ROOM UNRESOLVED')),
             const SizedBox(height: 12),
             Text(
               won ? 'Nothing escapes you.' : 'Some details stay hidden.',
@@ -188,7 +194,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                     children: [
                       Stat(
                         '${s.answerElapsed.toStringAsFixed(2)}s',
-                        'DETECTION TIME',
+                        daily && !won ? 'TIME PLAYED' : 'DETECTION TIME',
                       ),
                       Stat(
                         '${won ? (100 / (s.mistakes + 1)).round() : 0}%',
@@ -201,7 +207,9 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                   const Divider(),
                   const SizedBox(height: 10),
                   Text(
-                    'BEST ${daily ? p.daily[s.dailyDate]?.score ?? 0 : p.levels[s.level.levelId]?.score ?? 0}   ·   STREAK ×${done.score.multiplier}',
+                    daily
+                        ? 'OFFICIAL RESULT · ${s.dailyDate}'
+                        : 'BEST ${p.levels[s.level.levelId]?.score ?? 0}   ·   STREAK ×${done.score.multiplier}',
                     style: const TextStyle(
                       fontSize: 12,
                       letterSpacing: 1,
@@ -243,6 +251,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
             ),
             if (daily) ...[
               const SizedBox(height: 16),
+              const Text('A new room awaits at local midnight.', textAlign: TextAlign.center),
               Row(
                 children: [
                   Stat('${p.dailyStreak}', 'DAILY STREAK'),

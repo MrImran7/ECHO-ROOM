@@ -17,10 +17,10 @@ void main() {
       final selected = <int>{};
       for (var i = 0; i < 365; i++) {
         final id = daily.levelFor(DateTime(2026, 1, 1 + i), 20);
-        expect(id, inInclusiveRange(1, 20));
+        expect(LocalDailyChallengeSource.eligibleLevels, contains(id));
         selected.add(id);
       }
-      expect(selected.length, 20);
+      expect(selected.length, LocalDailyChallengeSource.eligibleLevels.length);
     },
   );
   test('calendar predecessor survives leap days and DST-length days', () {

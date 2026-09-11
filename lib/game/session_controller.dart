@@ -51,9 +51,9 @@ class SessionController extends Notifier<int> {
 
   Future<void> _start(int levelId, {bool daily = false}) async {
     final catalog = ref.read(catalogProvider).requireValue;
-    await ref.read(profileProvider.notifier).refreshLives();
+    if (!daily) await ref.read(profileProvider.notifier).refreshLives();
     final p = ref.read(profileProvider);
-    final today = DateTime.now();
+    final today = ref.read(clockProvider).now();
     if (daily)
       levelId = const LocalDailyChallengeSource().levelFor(
         today,
@@ -71,8 +71,9 @@ class SessionController extends Notifier<int> {
       throw StateError('Complete the previous room to unlock this one.');
     }
     final date = daily ? dateKey(today) : null;
-    if (date != null && p.daily.containsKey(date))
+    if (date != null && (p.daily[date]?.finalized ?? false))
       throw StateError('Today’s room has already been played.');
+    if (date != null && p.daily[date] != null) levelId = p.daily[date]!.levelId;
     final level = catalog.level(levelId);
     final s = GameSession(
       level: level,
@@ -87,14 +88,18 @@ class SessionController extends Notifier<int> {
     var next = p.patch({'activeSession': s.toJson()});
     if (date != null)
       next = next.patch({
+        'dailyStreak': visibleDailyStreak(p, today),
         'daily': {
           ...p.daily.map((k, v) => MapEntry(k, v.toJson())),
-          date: DailyRecord(levelId: levelId).toJson(),
+          date: (p.daily[date] ?? DailyRecord(
+            levelId: levelId,
+            puzzleVersion: LocalDailyChallengeSource.dailyPoolVersion,
+          )).toJson(),
         },
       });
     await ref.read(profileProvider.notifier).commit(next);
     _install(s);
-    ref.read(analyticsProvider).log(daily ? 'daily_started' : 'game_started', {
+    ref.read(analyticsProvider).log(daily ? 'daily_room_started' : 'game_started', {
       'level': levelId,
     });
     ref.read(analyticsProvider).log('level_started', {'level': levelId});
@@ -104,6 +109,10 @@ class SessionController extends Notifier<int> {
   void restore() {
     final saved = ref.read(profileProvider).activeSession;
     if (saved == null) return;
+    final savedDate = saved['dailyDate'] as String?;
+    if (savedDate != null && (ref.read(profileProvider).daily[savedDate]?.finalized ?? false)) {
+      throw StateError('This daily result is already recorded.');
+    }
     final catalog = ref.read(catalogProvider).requireValue;
     final level = catalog.level(saved['levelId'] as int);
     final s = GameSession(
@@ -197,8 +206,8 @@ class SessionController extends Notifier<int> {
 
   Future<void> _hint() async {
     final s = game, p = ref.read(profileProvider);
-    if (s == null || s.hints >= 3 || s.dailyDate != null) return;
-    final cost = GameConfig.hintCosts[s.hints];
+    if (s == null || s.hints >= 3) return;
+    final cost = s.dailyDate == null ? GameConfig.hintCosts[s.hints] : 0;
     if (p.hints < cost) {
       error =
           'Not enough hints. First clears of Rooms 5, 10, 15 and 20 earn more.';
@@ -285,7 +294,7 @@ class SessionController extends Notifier<int> {
     _pendingCompletion ??= completeSession(
       ref.read(profileProvider),
       s,
-      DateTime.now(),
+      ref.read(clockProvider).now(),
       ref.read(catalogProvider).requireValue.levels.length,
     );
     try {
@@ -300,7 +309,7 @@ class SessionController extends Notifier<int> {
         {'level': s.level.levelId, 'score': completion!.score.total},
       );
       if (s.dailyDate != null)
-        ref.read(analyticsProvider).log('daily_completed', {
+        ref.read(analyticsProvider).log(won ? 'daily_room_completed' : 'daily_room_failed', {
           'date': s.dailyDate,
           'won': won,
         });

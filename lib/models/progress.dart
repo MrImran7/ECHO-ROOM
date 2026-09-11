@@ -38,21 +38,37 @@ class DailyRecord {
   const DailyRecord({
     required this.levelId,
     this.status = 'started',
+    this.puzzleVersion = 1,
+    this.mistakes = 0,
+    this.hintsUsed = 0,
     this.time = 0,
     this.score = 0,
   });
-  final int levelId, score;
+  final int levelId, score, puzzleVersion, mistakes, hintsUsed;
+  bool get finalized => status == 'won' || status == 'lost';
+  int get responseTimeMs => (time * 1000).round();
+  String get puzzleId => 'apartment-$levelId';
   final String status;
   final double time;
   factory DailyRecord.fromJson(Json j) => DailyRecord(
     levelId: j['levelId'] as int,
-    status: j['status'] as String,
-    time: number(j['time']),
+    status: j['status'] as String? ?? 'started',
+    puzzleVersion: j['puzzleVersion'] as int? ?? 1,
+    mistakes: j['mistakes'] as int? ?? 0,
+    hintsUsed: j['hintsUsed'] as int? ?? 0,
+    time: j['responseTimeMs'] is int
+        ? (j['responseTimeMs'] as int) / 1000
+        : number(j['time']),
     score: j['score'] as int? ?? 0,
   );
   Json toJson() => {
     'levelId': levelId,
     'status': status,
+    'puzzleVersion': puzzleVersion,
+    'puzzleId': puzzleId,
+    'responseTimeMs': responseTimeMs,
+    'mistakes': mistakes,
+    'hintsUsed': hintsUsed,
     'time': time,
     'score': score,
   };

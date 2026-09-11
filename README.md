@@ -107,3 +107,31 @@ These counters track completed Apartment sessions, including failures and replay
 Chapter totals and fastest time are derived from best records, never accumulated.
 Reset clears progression while preserving Music, Sound and Haptics preferences.
 Achievements and local stats remain viewable in Collection.
+
+### Daily Room
+
+`lib/daily/daily_service.dart` owns the injectable local clock and stable pool-v1
+selection. Calendar date fields (YYYY-MM-DD), not elapsed hours or time of day,
+select among rooms 6–11 and 13–15. Preserve pool ordering/content within a version;
+bump `dailyPoolVersion` for an intentional content change. Existing unfinished
+reservations keep their saved level/version.
+
+One official attempt per date; one wrong answer or timeout ends it. Three free
+hint strengths use the existing score penalties without spending chapter hints.
+Daily play ignores lives and cannot alter chapter records, achievements,
+collectibles, stats or gameplay streak. There is no post-result practice mode.
+
+Start and final result are persisted through the existing repository. A killed
+app resumes its checkpoint; an unfinished reservation without a checkpoint can
+retry. Finishing after midnight still belongs to the start date. Final records
+are immutable by date, even with a different run ID. A paused chapter room must
+be finished before switching modes because there is one active-session slot.
+
+Consecutive successful calendar dates extend the daily streak; failure or a
+skipped day resets it, while best streak remains. Entry/resume/return refresh
+local dates, and PLAY rechecks at touch time; there is no midnight polling.
+History retains version, puzzle ID, result, score, milliseconds, mistakes and
+hints in the existing backward-compatible save envelope. These fields form the
+future leaderboard submission payload; no network implementation is included.
+Reset Progress clears daily data and keeps sound/music/haptic preferences.
+Debug builds show the date, selected puzzle and pool version on Daily Room.

@@ -121,10 +121,10 @@ void main() {
     expect(o.contains(.5, .57), true);
     expect(o.contains(.57, .5), false);
   });
-  test('daily permits one attempt, no hints', () {
+  test('daily permits one attempt with free hint strengths', () {
     final s = session(daily: '2026-09-09');
     reachAnswer(s);
-    expect(s.useHint(), false);
+    expect(s.useHint(), true);
     expect(s.tap(.31, .23), TapResult.failed);
   });
   test('three hint strengths never auto-award a win', () {
