@@ -3,12 +3,15 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../levels/catalog.dart';
+import '../daily/daily_service.dart';
 import '../models/progress.dart';
 import '../services/ad_service.dart';
 import '../services/analytics_service.dart';
 import '../services/audio_service.dart';
 import '../services/lives_service.dart';
 import '../storage/progress_repository.dart';
+
+final clockProvider = Provider<LocalClock>((ref) => const SystemLocalClock());
 
 final repositoryProvider = Provider<ProgressRepository>(
   (ref) => LocalProgressRepository(),

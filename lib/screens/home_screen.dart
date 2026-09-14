@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app/providers.dart';
 import '../core/config.dart';
+import '../daily/daily_service.dart';
+import '../models/progress.dart';
 import '../services/lives_service.dart';
 import '../widgets/common.dart';
 import 'chapters_screen.dart';
@@ -49,6 +51,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       _refresh();
+      if (mounted) setState(() {});
       ref.read(audioProvider).resume();
       ref.read(hapticsProvider).resume();
     } else {
@@ -64,9 +67,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     super.dispose();
   }
 
-  Future<void> _page(Widget screen) =>
-      Navigator.of(context)
-          .push<void>(MaterialPageRoute(builder: (_) => screen));
+  Future<void> _page(Widget screen) async {
+    await Navigator.of(context).push<void>(MaterialPageRoute(builder: (_) => screen));
+    if (mounted) setState(() {});
+  }
   @override
   Widget build(BuildContext context) {
     final p = ref.watch(profileProvider),
@@ -154,8 +158,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
           ),
           const SizedBox(height: 12),
           ActionButton(
-            'DAILY ROOM',
-            icon: Icons.nightlight_outlined,
+            'DAILY ROOM · ${dailyStatus(p, ref.read(clockProvider).now())}',
+            icon: switch (dailyAttemptState(p, ref.read(clockProvider).now())) {
+              DailyAttemptState.completed => Icons.check_circle_outline,
+              DailyAttemptState.failed => Icons.close_rounded,
+              DailyAttemptState.started || DailyAttemptState.interrupted => Icons.restore,
+              DailyAttemptState.available => Icons.nightlight_outlined,
+            },
             secondary: true,
             onPressed: () => _page(const DailyScreen()),
           ),

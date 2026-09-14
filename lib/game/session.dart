@@ -228,7 +228,7 @@ class GameSession {
   }
 
   bool useHint() {
-    if (_phase != GamePhase.answering || _hints >= 3 || dailyDate != null)
+    if (_phase != GamePhase.answering || _hints >= 3)
       return false;
     _hints++;
     hintRemaining = _hints == 3 ? remaining : GameConfig.hintPulseSeconds;
@@ -291,7 +291,6 @@ class GameSession {
         nextHints is! int ||
         nextHints < 0 ||
         nextHints > 3 ||
-        (dailyDate != null && nextHints != 0) ||
         (reason != null && !LossReason.values.any((r) => r.name == reason)) ||
         (nextTapped != null &&
             !original.objects.any((o) => o.id == nextTapped))) {
