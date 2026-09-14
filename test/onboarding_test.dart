@@ -17,7 +17,7 @@ Widget app(ProviderContainer c, Widget home, {double scale = 1}) =>
         textScaler: TextScaler.linear(scale), disableAnimations: true), child: child!),
       home: home));
 Future<void> tapVisible(WidgetTester tester, String text) async {
-  await tester.ensureVisible(find.text(text));
+  await tester.scrollUntilVisible(find.text(text), 120);
   await tester.pumpAndSettle();
   await tester.tap(find.text(text));
   await tester.pumpAndSettle();
@@ -130,7 +130,7 @@ void main() {
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(app(c, const HowToPlayScreen(), scale: scale));
       await tester.pumpAndSettle();
-      await tester.ensureVisible(find.text('YOUR GAME')); await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(find.text('YOUR GAME'), 120); await tester.pumpAndSettle();
       expect(find.text('YOUR GAME').hitTestable(), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
