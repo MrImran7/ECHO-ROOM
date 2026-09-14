@@ -84,9 +84,9 @@ class _DailyScreenState extends ConsumerState<DailyScreen>
     }
     final now = ref.read(clockProvider).now(), p = ref.watch(profileProvider);
     final today = dateKey(now);
-    final record = p.daily[today];
     final saved = p.activeSession;
     final savedDate = saved?['dailyDate'] as String?;
+    final record = p.daily[savedDate ?? today];
     final finalized = record?.finalized ?? false;
     final owningDate = savedDate == null ? now : DateTime.parse(savedDate);
     final formattedDate = MaterialLocalizations.of(context).formatFullDate(owningDate);
@@ -178,7 +178,7 @@ class _DailyScreenState extends ConsumerState<DailyScreen>
                 MaterialPageRoute(builder: (_) => DailyDebugLab(baseClock: ref.read(clockProvider)))),
                 child: const Text('OPEN DAILY LAB')),
             const SizedBox(height: 16),
-            Text('DEBUG · $today · pool v${LocalDailyChallengeSource.dailyPoolVersion} · puzzle ${record?.levelId ?? const LocalDailyChallengeSource().levelFor(now, ref.read(catalogProvider).requireValue.levels.length)}',
+            Text('DEBUG · ${savedDate ?? today} · pool v${record?.puzzleVersion ?? LocalDailyChallengeSource.dailyPoolVersion} · puzzle ${savedDate != null ? saved!['levelId'] : record?.levelId ?? const LocalDailyChallengeSource().levelFor(now, ref.read(catalogProvider).requireValue.levels.length)}',
                 textAlign: TextAlign.center, style: const TextStyle(fontSize: 11)),
           ],
         ],

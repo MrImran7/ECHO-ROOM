@@ -122,6 +122,26 @@ void main() {
     });
   }
 
+  testWidgets('interrupted entry and diagnostics retain owning date after midnight', (tester) async {
+    final saved = session(level: 7, daily: '2026-09-11').toJson();
+    final repo = MemoryProgressRepository()..value = Progress(
+      activeSession: saved,
+      daily: const {'2026-09-11': DailyRecord(levelId: 7, puzzleVersion: 2)},
+    );
+    final c = await ready(repo, clock: TestClock(DateTime(2026, 9, 12)));
+    addTearDown(c.dispose);
+    await tester.pumpWidget(UncontrolledProviderScope(container: c,
+      child: const MaterialApp(home: DailyScreen())));
+    await tester.pumpAndSettle();
+    final context = tester.element(find.byType(DailyScreen));
+    final label = MaterialLocalizations.of(context).formatFullDate(DateTime(2026, 9, 11));
+    expect(find.text(label), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('RESUME DAILY ROOM'), 120);
+    await tester.scrollUntilVisible(find.text('DEBUG · 2026-09-11 · pool v2 · puzzle 7'), 120);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
+  });
+
   testWidgets('lab exit restores real profile and does not retain overrides', (tester) async {
     final repo = MemoryProgressRepository();
     final c = await ready(repo);
