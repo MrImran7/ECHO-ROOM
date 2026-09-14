@@ -9,6 +9,7 @@ import '../app/theme.dart';
 import '../collection/definitions.dart';
 import '../game/session.dart';
 import '../core/config.dart';
+import '../daily/daily_result_body.dart';
 import '../services/audio_service.dart';
 import '../services/progression_service.dart';
 import '../widgets/common.dart';
@@ -117,7 +118,10 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
       canPop: !_leaving,
       child: Scaffold(
         appBar: AppBar(title: Text(daily ? 'DAILY ROOM' : 'THE APARTMENT')),
-        body: PageBody(
+        body: daily ? DailyResultBody(
+          date: s.dailyDate!, record: done.progress.daily[s.dailyDate]!, progress: p,
+          onHome: _leaving ? null : _home,
+        ) : PageBody(
           children: [
             const SizedBox(height: 24),
             Icon(

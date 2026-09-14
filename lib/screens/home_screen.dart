@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../app/providers.dart';
 import '../core/config.dart';
 import '../daily/daily_service.dart';
+import '../models/progress.dart';
 import '../services/lives_service.dart';
 import '../widgets/common.dart';
 import 'chapters_screen.dart';
@@ -158,7 +159,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
           const SizedBox(height: 12),
           ActionButton(
             'DAILY ROOM · ${dailyStatus(p, ref.read(clockProvider).now())}',
-            icon: Icons.nightlight_outlined,
+            icon: switch (dailyAttemptState(p, ref.read(clockProvider).now())) {
+              DailyAttemptState.completed => Icons.check_circle_outline,
+              DailyAttemptState.failed => Icons.close_rounded,
+              DailyAttemptState.started || DailyAttemptState.interrupted => Icons.restore,
+              DailyAttemptState.available => Icons.nightlight_outlined,
+            },
             secondary: true,
             onPressed: () => _page(const DailyScreen()),
           ),

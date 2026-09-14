@@ -364,7 +364,7 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
                                 : s.phase == GamePhase.observing
                                 ? 'Remember the room. A detail will change.'
                                 : s.dailyDate != null
-                                ? 'ONE OFFICIAL ATTEMPT · 3 FREE HINT STRENGTHS'
+                                ? (s.hints > 0 ? 'DAILY HINT USED · SCORE REDUCED' : 'ONE OFFICIAL ATTEMPT · 3 FREE DAILY HINTS')
                                 : 'Tap what changed — even if it disappeared.',
                             textAlign: TextAlign.center,
                             style: const TextStyle(fontSize: 12),
@@ -387,6 +387,8 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
                                   label: Text(
                                     s.hints == 3
                                         ? 'REVEALED'
+                                        : s.dailyDate != null
+                                        ? 'DAILY HINT ${s.hints + 1}/3 · FREE'
                                         : 'HINT ${s.hints + 1} · ${s.dailyDate == null ? GameConfig.hintCosts[math.min(s.hints, 2)].toString() : 'FREE'}',
                                   ),
                                   style: OutlinedButton.styleFrom(

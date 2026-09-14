@@ -22,7 +22,7 @@ void main() {
       expect(find.text('NEXT ROOM'), findsNothing);
       expect(find.text('REPLAY'), findsNothing);
       expect(find.byType(Stars), findsNothing);
-      await reveal(tester, 'BEST DAILY STREAK');
+      await reveal(tester, 'BEST DAILY STREAK: ${done.progress.bestDailyStreak}');
       expect(tester.takeException(), isNull);
       await reveal(tester, 'HOME');
       await tester.tap(find.text('HOME'));

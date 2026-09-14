@@ -59,7 +59,23 @@ class DailyRecord {
     levelId: levelId, status: 'interrupted', puzzleVersion: puzzleVersion,
     time: time, score: score, mistakes: mistakes, hintsUsed: hintsUsed,
   );
+  static bool validDateKey(String key) {
+    if (!RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(key)) return false;
+    final date = DateTime.tryParse(key);
+    return date != null && date.toIso8601String().substring(0, 10) == key;
+  }
+  void validate() {
+    final attemptState = state;
+    if (levelId < 1 || puzzleVersion < 1 || score < 0 ||
+        mistakes < 0 || mistakes > 1 || hintsUsed < 0 || hintsUsed > 3 ||
+        !time.isFinite || time < 0 ||
+        (attemptState == DailyAttemptState.completed && mistakes != 0)) {
+      throw const FormatException('Invalid daily result values.');
+    }
+  }
   Json officialPayload(String date) {
+    validate();
+    if (!validDateKey(date)) throw const FormatException('Invalid daily date key.');
     if (!finalized) throw StateError('An unfinished attempt has no official payload.');
     return {
       'date': date, 'dailyPoolVersion': puzzleVersion, 'puzzleId': puzzleId,
@@ -97,6 +113,24 @@ class DailyRecord {
 }
 
 /// Versioned, immutable save envelope. Collections are copied on construction.
+Map<String, DailyRecord> _dailyHistory(Object? raw) {
+  if (raw is! Map) return {};
+  final records = <String, DailyRecord>{};
+  for (final entry in raw.entries) {
+    if (entry.key is! String || !DailyRecord.validDateKey(entry.key as String)) continue;
+    try {
+      final record = DailyRecord.fromJson(Map<String, dynamic>.from(entry.value as Map));
+      record.validate();
+      records[entry.key as String] = record;
+    } on FormatException {
+      // Optional damaged history must not make chapter progress unreadable.
+    } on TypeError {
+      // Legacy malformed fields are excluded; valid records remain unchanged.
+    }
+  }
+  return records;
+}
+
 class Progress {
   Progress({
     this.highestLevel = 1,
@@ -167,9 +201,7 @@ class Progress {
       levels: (j['levels'] as Json? ?? {}).map(
         (k, v) => MapEntry(int.parse(k), LevelRecord.fromJson(v as Json)),
       ),
-      daily: (j['daily'] as Json? ?? {}).map(
-        (k, v) => MapEntry(k, DailyRecord.fromJson(v as Json)),
-      ),
+      daily: _dailyHistory(j['daily']),
       achievements: (j['achievements'] as List<dynamic>? ?? [])
           .cast<String>()
           .toSet(),

@@ -92,8 +92,11 @@ class DailyLabControls extends ConsumerWidget {
     if (!GameConfig.debugTools) return const SizedBox.shrink();
     final clock = ref.read(clockProvider) as DebugDailyClock;
     return Column(children: [
-      const Text('DAILY LAB · MEMORY ONLY', style: TextStyle(color: EchoTheme.gold)),
+      const Text('DAILY LAB · DEBUG / TEST ONLY', style: TextStyle(color: EchoTheme.gold)),
       const Text('Simulated results disappear when you exit. Real progress is untouched.', textAlign: TextAlign.center),
+      Text('${clock.overridden ? 'OVERRIDE' : 'REAL DATE'}: ${dateKey(clock.now())}', textAlign: TextAlign.center),
+      Text('Device date: ${dateKey(clock.base.now())}', textAlign: TextAlign.center),
+      Text('Attempt: ${dailyAttemptState(ref.watch(profileProvider), clock.now()).name}', textAlign: TextAlign.center),
       Wrap(alignment: WrapAlignment.center, children: [
         TextButton(onPressed: () async {
           final date = await showDatePicker(context: context, initialDate: clock.now(),

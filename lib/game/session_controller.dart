@@ -55,6 +55,7 @@ class SessionController extends Notifier<int> {
     if (!daily) await ref.read(profileProvider.notifier).refreshLives();
     final p = ref.read(profileProvider);
     final today = ref.read(clockProvider).now();
+    if (daily) LocalDailyChallengeSource.validatePool(catalog);
     if (daily)
       levelId = const LocalDailyChallengeSource().levelFor(
         today,
@@ -75,6 +76,9 @@ class SessionController extends Notifier<int> {
     if (date != null && (p.daily[date]?.finalized ?? false))
       throw StateError('Today’s room has already been played.');
     if (date != null && p.daily[date] != null) levelId = p.daily[date]!.levelId;
+    if (daily && !catalog.levels.any((level) => level.levelId == levelId)) {
+      throw StateError('The saved daily puzzle is unavailable in this version. Your attempt has not changed.');
+    }
     final level = catalog.level(levelId);
     final s = GameSession(
       level: level,
@@ -115,6 +119,9 @@ class SessionController extends Notifier<int> {
       throw StateError('This daily result is already recorded.');
     }
     final catalog = ref.read(catalogProvider).requireValue;
+    if (savedDate != null && !catalog.levels.any((level) => level.levelId == saved['levelId'])) {
+      throw StateError('The saved daily puzzle is unavailable in this version. Your attempt has not changed.');
+    }
     final level = catalog.level(saved['levelId'] as int);
     final s = GameSession(
       level: level,

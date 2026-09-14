@@ -1,4 +1,5 @@
 import '../models/progress.dart';
+import '../levels/catalog.dart';
 
 /// Injectable local clock. Calendar fields, never elapsed hours, identify a day.
 abstract interface class LocalClock {
@@ -22,6 +23,22 @@ class LocalDailyChallengeSource implements DailyChallengeSource {
   // Keep ordering stable within a version. Bump version when content changes.
   static const eligibleLevels = [6, 7, 8, 9, 10, 11, 13, 14, 15];
   final int version;
+  static void validatePool(GameCatalog catalog, {List<int> ids = eligibleLevels}) {
+    if (ids.isEmpty || ids.toSet().length != ids.length) {
+      throw const FormatException('Daily pool must be nonempty and unique.');
+    }
+    for (final id in ids) {
+      final matches = catalog.levels.where((level) => level.levelId == id);
+      if (matches.length != 1) throw FormatException('Missing daily puzzle $id.');
+      final level = matches.single;
+      if (!['medium', 'hard'].contains(level.difficulty) ||
+          level.hints.length != 3 || level.targets.isEmpty ||
+          !catalog.rooms.containsKey(level.roomId)) {
+        throw FormatException('Puzzle $id is incompatible with Daily Room.');
+      }
+    }
+  }
+
   @override
   int levelFor(DateTime localDate, int count) {
     if (version < 1) throw ArgumentError.value(version, 'version');

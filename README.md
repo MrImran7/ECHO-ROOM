@@ -151,3 +151,12 @@ use injected clocks. Dates are local calendar keys, so timezone changes can move
 the visible day backward/forward without renaming stored history. No anti-cheat
 is attempted. History keeps one small record per played date (roughly a few
 hundred bytes per day, around 100 KB/year), and displays only the latest seven.
+
+Final Daily UX: result response time leads the layout; first solve / strictly
+faster prior-daily time feedback is derived from history without changing the
+record. History uses status text and wraps beneath the date. Optional malformed
+history entries are excluded during decoding; valid records and chapter saves
+are retained. Missing reserved puzzles fail before a write and are not replaced.
+Entry waits for loaded data and offers retry for read/load errors. Payloads reject
+invalid date keys, negative values and out-of-range hint/attempt counts. Pool
+compatibility is validated at daily start and in tests, not per frame.
