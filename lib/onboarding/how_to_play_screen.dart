@@ -6,8 +6,9 @@ import '../widgets/common.dart';
 
 /// Presentation only: no game session, lives, daily state or rewards are touched.
 class HowToPlayScreen extends ConsumerStatefulWidget {
-  const HowToPlayScreen({this.firstLaunch = false, super.key});
+  const HowToPlayScreen({this.firstLaunch = false, this.onFinished, super.key});
   final bool firstLaunch;
+  final VoidCallback? onFinished;
   @override
   ConsumerState<HowToPlayScreen> createState() => _HowToPlayScreenState();
 }
@@ -25,6 +26,7 @@ class _HowToPlayScreenState extends ConsumerState<HowToPlayScreen> {
     setState(() => _leaving = true);
     try {
       await ref.read(profileProvider.notifier).finishIntro();
+      if (mounted) widget.onFinished?.call();
     } catch (_) {
       if (mounted) {
         setState(() => _leaving = false);
@@ -77,11 +79,23 @@ class _HowToPlayScreenState extends ConsumerState<HowToPlayScreen> {
   );
 }
 
-class FirstRunGate extends ConsumerWidget {
+class FirstRunGate extends ConsumerStatefulWidget {
   const FirstRunGate({required this.child, super.key});
   final Widget child;
   @override
-  Widget build(BuildContext context, WidgetRef ref) =>
-      ref.watch(profileProvider.select((p) => p.settings.introVersion)) < 1
-          ? const HowToPlayScreen(firstLaunch: true) : child;
+  ConsumerState<FirstRunGate> createState() => _FirstRunGateState();
+}
+
+class _FirstRunGateState extends ConsumerState<FirstRunGate> {
+  late bool _required;
+  @override
+  void initState() {
+    super.initState();
+    _required = ref.read(profileProvider).settings.introVersion < 1;
+  }
+  @override
+  Widget build(BuildContext context) => _required
+      ? HowToPlayScreen(firstLaunch: true,
+          onFinished: () => setState(() => _required = false))
+      : widget.child;
 }

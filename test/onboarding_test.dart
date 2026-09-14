@@ -22,7 +22,28 @@ Future<void> tapVisible(WidgetTester tester, String text) async {
   await tester.tap(find.text(text));
   await tester.pumpAndSettle();
 }
+class FailingIntroRepository extends MemoryProgressRepository {
+  bool fail = true;
+  @override
+  Future<void> save(Progress progress) async {
+    if (fail) throw StateError('Storage unavailable');
+    await super.save(progress);
+  }
+}
 void main() {
+  testWidgets('failed intro save stays recoverable until retry succeeds', (tester) async {
+    final repo = FailingIntroRepository();
+    final c = await ready(repo); addTearDown(c.dispose);
+    await tester.pumpWidget(app(c, const FirstRunGate(child: Scaffold(body: Text('HOME')))));
+    await tester.pumpAndSettle();
+    await tapVisible(tester, 'SKIP');
+    expect(find.text('LOOK CLOSELY'), findsOneWidget);
+    expect(repo.value.settings.introVersion, 0);
+    repo.fail = false;
+    await tapVisible(tester, 'SKIP');
+    expect(find.text('HOME'), findsOneWidget);
+    expect(repo.value.settings.introVersion, 1);
+  });
   test('legacy progression skips intro while empty saves remain new', () {
     expect(Progress.fromJson({}).settings.introVersion, 0);
     for (final old in <Map<String, dynamic>>[
