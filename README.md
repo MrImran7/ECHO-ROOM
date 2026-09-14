@@ -160,3 +160,17 @@ are retained. Missing reserved puzzles fail before a write and are not replaced.
 Entry waits for loaded data and offers retry for read/load errors. Payloads reject
 invalid date keys, negative values and out-of-range hint/attempt counts. Pool
 compatibility is validated at daily start and in tests, not per frame.
+
+## First-run guidance
+
+Fresh installs receive three skippable, static instruction steps before Home.
+Back goes to the previous step (or skips from step one). Backgrounding retains
+its step; process death restarts an unfinished intro. Completing/skipping never
+starts a game. Settings → How to Play is a read-only reference.
+
+`UserSettings.introVersion` (currently 1) and `seenTips` share the existing save
+repository and survive Reset Progress. Legacy saves with chapter/daily progress
+or an active session skip the automatic intro; explicit preferences are retained.
+Contextual cues are claimed when shown, not each frame. Failed optional saves
+use the existing profile save-error/retry path. No gameplay clocks are paused or
+changed by guidance, and no tutorial audio or rendering engine is introduced.

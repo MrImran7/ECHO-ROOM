@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../achievements/definitions.dart';
 import '../app/providers.dart';
+import '../onboarding/guidance.dart';
 import '../app/theme.dart';
 import '../collection/definitions.dart';
 import '../game/session.dart';
@@ -123,6 +124,11 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
           onHome: _leaving ? null : _home,
         ) : PageBody(
           children: [
+            if (won) const Guidance(id: 'stars', text: 'Faster solves, fewer mistakes and fewer hints earn more stars. Solve to unlock the next room; replay to improve your best.'),
+            if (done.newAchievements.isNotEmpty)
+              const Guidance(id: 'achievement', text: 'Achievement unlocked. Find it in Collection.'),
+            if (done.newCollectibles.isNotEmpty)
+              const Guidance(id: 'collection', text: 'New item added to Collection.'),
             const SizedBox(height: 24),
             Icon(
               won

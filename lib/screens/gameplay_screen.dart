@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app/providers.dart';
+import '../onboarding/guidance.dart';
 import '../app/theme.dart';
 import '../core/config.dart';
 import '../game/session.dart';
@@ -353,12 +354,21 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
                             onPressed: c.completion == null ? null : _results,
                           )
                         else if (s.resolved && !s.paused)
-                          const Text(
-                            'A small detail makes all the difference.',
-                            textAlign: TextAlign.center,
-                          )
+                          s.phase == GamePhase.correct || s.phase == GamePhase.won
+                            ? const Guidance(id: 'success', text: 'That’s it! You found the change.',
+                                fallback: Text('A small detail makes all the difference.', textAlign: TextAlign.center))
+                            : const Text('A small detail makes all the difference.', textAlign: TextAlign.center)
                         else ...[
-                          Text(
+                          Guidance(
+                            key: ValueKey('${s.phase.name}:${s.hints > 0}'),
+                            eligible: s.phase == GamePhase.incorrect ||
+                                (s.phase == GamePhase.answering && (s.hints > 0 ||
+                                  (s.dailyDate == null && s.level.levelId == 1))),
+                            id: s.phase == GamePhase.incorrect ? 'wrong' : s.hints > 0 ? 'hint' : 'answer',
+                            text: s.phase == GamePhase.incorrect ? 'Look for what changed.'
+                                : s.hints > 0 ? '${s.level.hints[s.hints - 1]} · Hints reduce your score.'
+                                : 'One thing changed. Tap it.',
+                            fallback: Text(
                             s.hints > 0 && s.hintRemaining > 0 && !s.paused
                                 ? s.level.hints[s.hints - 1]
                                 : s.phase == GamePhase.observing
@@ -368,6 +378,7 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
                                 : 'Tap what changed — even if it disappeared.',
                             textAlign: TextAlign.center,
                             style: const TextStyle(fontSize: 12),
+                          ),
                           ),
                           const SizedBox(height: 8),
                           Row(

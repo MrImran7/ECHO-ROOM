@@ -6,19 +6,28 @@ class UserSettings {
     this.music = true,
     this.sound = true,
     this.haptics = true,
+    this.introVersion = 0,
+    this.seenTips = const {},
   });
   final bool music, sound, haptics;
+  final int introVersion;
+  final Set<String> seenTips;
   factory UserSettings.fromJson(Json j) => UserSettings(
     music: j['music'] as bool? ?? true,
     sound: j['sound'] as bool? ?? true,
     haptics: j['haptics'] as bool? ?? true,
+    introVersion: j['introVersion'] as int? ?? 0,
+    seenTips: (j['seenTips'] as List<dynamic>? ?? []).whereType<String>().toSet(),
   );
-  Json toJson() => {'music': music, 'sound': sound, 'haptics': haptics};
-  UserSettings copyWith({bool? music, bool? sound, bool? haptics}) =>
+  Json toJson() => {'music': music, 'sound': sound, 'haptics': haptics,
+    'introVersion': introVersion, 'seenTips': seenTips.toList()};
+  UserSettings copyWith({bool? music, bool? sound, bool? haptics, int? introVersion, Set<String>? seenTips}) =>
       UserSettings(
         music: music ?? this.music,
         sound: sound ?? this.sound,
         haptics: haptics ?? this.haptics,
+        introVersion: introVersion ?? this.introVersion,
+        seenTips: seenTips ?? this.seenTips,
       );
 }
 
@@ -183,6 +192,15 @@ class Progress {
   factory Progress.fromJson(Json j) {
     if ((j['version'] as int? ?? 1) > 1)
       throw const FormatException('Save is from a newer version.');
+    final settings = Map<String, dynamic>.from(j['settings'] as Json? ?? {});
+    // Only legacy saves migrate. Explicit onboarding preferences remain authoritative.
+    if (!settings.containsKey('introVersion') &&
+        ((j['highestLevel'] as int? ?? 1) > 1 ||
+         (j['levels'] as Map? ?? {}).isNotEmpty ||
+         (j['daily'] as Map? ?? {}).isNotEmpty || j['activeSession'] != null ||
+         (j['correctAnswers'] as int? ?? 0) > 0)) {
+      settings['introVersion'] = 1;
+    }
     return Progress(
       highestLevel: j['highestLevel'] as int? ?? 1,
       lives: j['lives'] as int? ?? GameConfig.maxLives,
@@ -197,7 +215,7 @@ class Progress {
       dailyStreak: j['dailyStreak'] as int? ?? 0,
       bestDailyStreak: j['bestDailyStreak'] as int? ?? 0,
       lastDailyWin: j['lastDailyWin'] as String?,
-      settings: UserSettings.fromJson(j['settings'] as Json? ?? {}),
+      settings: UserSettings.fromJson(settings),
       levels: (j['levels'] as Json? ?? {}).map(
         (k, v) => MapEntry(int.parse(k), LevelRecord.fromJson(v as Json)),
       ),

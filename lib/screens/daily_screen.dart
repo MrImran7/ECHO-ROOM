@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app/providers.dart';
+import '../onboarding/guidance.dart';
 import '../app/theme.dart';
 import '../core/config.dart';
 import '../daily/daily_service.dart';
@@ -101,6 +102,7 @@ class _DailyScreenState extends ConsumerState<DailyScreen>
       appBar: AppBar(title: const Text('DAILY ROOM')),
       body: PageBody(
         children: [
+          const Guidance(id: 'daily', text: 'One Daily Room. One official result each day. Daily progress is separate from Chapter progress.'),
           const SizedBox(height: 32),
           Icon(statusIcon, color: EchoTheme.gold, size: 48),
           const SizedBox(height: 12),
