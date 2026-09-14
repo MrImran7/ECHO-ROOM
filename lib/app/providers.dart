@@ -59,8 +59,12 @@ class ProfileController extends Notifier<Progress> {
   }
 
   Future<void> retrySave() => commit(state);
-  Future<void> finishIntro() => commit(state.patch({
-    'settings': state.settings.copyWith(introVersion: 1).toJson(),
+  Future<void> finishIntro({bool skipped = false}) => commit(state.patch({
+    'settings': state.settings.copyWith(introVersion: 1, seenTips: {
+      ...state.settings.seenTips,
+      // Skip keeps essential mistake/hint/Daily guidance, without repeating the intro.
+      if (skipped) ...{'answer', 'success', 'stars', 'achievement', 'collection'},
+    }).toJson(),
   }));
   Future<void> markTip(String id) async {
     if (state.settings.seenTips.contains(id)) return;

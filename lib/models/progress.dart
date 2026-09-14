@@ -198,7 +198,9 @@ class Progress {
         ((j['highestLevel'] as int? ?? 1) > 1 ||
          (j['levels'] as Map? ?? {}).isNotEmpty ||
          (j['daily'] as Map? ?? {}).isNotEmpty || j['activeSession'] != null ||
-         (j['correctAnswers'] as int? ?? 0) > 0)) {
+         (j['correctAnswers'] as int? ?? 0) > 0 ||
+         (j['achievements'] as List<dynamic>? ?? []).isNotEmpty ||
+         (j['collectibles'] as List<dynamic>? ?? []).isNotEmpty)) {
       settings['introVersion'] = 1;
     }
     return Progress(

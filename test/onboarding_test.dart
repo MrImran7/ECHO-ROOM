@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -9,6 +10,10 @@ import 'package:echo_room/onboarding/how_to_play_screen.dart';
 import 'package:echo_room/screens/settings_screen.dart';
 import 'package:echo_room/storage/progress_repository.dart';
 import 'controller_test.dart' show ready;
+import 'package:echo_room/widgets/common.dart';
+import 'package:echo_room/services/progression_service.dart';
+import 'result_robustness_test.dart' show showResult;
+import 'test_support.dart' show session, win;
 
 Widget app(ProviderContainer c, Widget home, {double scale = 1}) =>
     UncontrolledProviderScope(container: c, child: MaterialApp(
@@ -30,7 +35,101 @@ class FailingIntroRepository extends MemoryProgressRepository {
     await super.save(progress);
   }
 }
+class PendingIntroRepository extends MemoryProgressRepository {
+  final gate = Completer<void>();
+  int writes = 0;
+  @override
+  Future<void> save(Progress progress) async {
+    writes++;
+    await gate.future;
+    await super.save(progress);
+  }
+}
 void main() {
+  test('skip suppresses optional cues and preserves essential guidance', () async {
+    final repo = MemoryProgressRepository();
+    final c = await ready(repo); addTearDown(c.dispose);
+    await c.read(profileProvider.notifier).finishIntro(skipped: true);
+    final p = await repo.load();
+    expect(p.settings.seenTips, containsAll(['answer', 'success', 'stars']));
+    expect(p.settings.seenTips.intersection({'wrong', 'hint', 'daily'}), isEmpty);
+    expect(p.levels, isEmpty);
+    expect(p.daily, isEmpty);
+    expect(p.activeSession, isNull);
+  });
+  testWidgets('rapid skip and back make one save and one Home transition', (tester) async {
+    final repo = PendingIntroRepository();
+    final c = await ready(repo); addTearDown(c.dispose);
+    await tester.pumpWidget(app(c, const FirstRunGate(child: Scaffold(body: Text('HOME')))));
+    expect(find.text('HOME'), findsNothing);
+    await tester.tap(find.text('SKIP'));
+    await tester.tap(find.text('SKIP'));
+    await tester.binding.handlePopRoute();
+    await tester.pump();
+    expect(repo.writes, 1);
+    expect(find.text('HOME'), findsNothing);
+    repo.gate.complete();
+    await tester.pumpAndSettle();
+    expect(find.text('HOME'), findsOneWidget);
+  });
+  testWidgets('each intro step survives background and unfinished restart starts at one', (tester) async {
+    final repo = MemoryProgressRepository();
+    var c = await ready(repo);
+    for (var step = 0; step < 3; step++) {
+      if (step == 0) {
+        await tester.pumpWidget(app(c, const FirstRunGate(child: Scaffold(body: Text('HOME')))));
+        await tester.pumpAndSettle();
+      } else {
+        await tapVisible(tester, 'CONTINUE');
+      }
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await tester.pumpAndSettle();
+      expect(find.text('STEP ${step + 1} OF 3'), findsOneWidget);
+      expect(repo.value.settings.introVersion, 0);
+    }
+    await tester.pumpWidget(const SizedBox());
+    c.dispose();
+    c = await ready(repo); addTearDown(c.dispose);
+    await tester.pumpWidget(app(c, const FirstRunGate(child: Scaffold(body: Text('HOME')))));
+    await tester.pumpAndSettle();
+    expect(find.text('LOOK CLOSELY'), findsOneWidget);
+  });
+  testWidgets('first result uses one optional cue after navigation despite multiple awards', (tester) async {
+    final s = session(); win(s);
+    final done = completeSession(Progress(), s, DateTime(2026, 9, 11), 20);
+    expect(done.newAchievements, isNotEmpty);
+    await showResult(tester, s, done, MemoryProgressRepository());
+    final children = tester.widget<PageBody>(find.byType(PageBody)).children;
+    final cues = children.whereType<Guidance>().toList();
+    expect(cues.length, 1);
+    expect(cues.single.id, 'stars');
+    final home = children.indexWhere((w) => w is ActionButton && w.label == 'HOME');
+    expect(children.indexOf(cues.single), greaterThan(home));
+    expect(children.whereType<ActionButton>().any((w) => w.label == 'NEXT ROOM'), true);
+    await tester.pumpWidget(const SizedBox());
+  });
+  testWidgets('stars expose one aggregate spoken value', (tester) async {
+    final semantics = tester.ensureSemantics(); addTearDown(semantics.dispose);
+    await tester.pumpWidget(const MaterialApp(home: Scaffold(body: Stars(2))));
+    expect(find.bySemanticsLabel('2 of 3 stars'), findsOneWidget);
+    final label = tester.widget<Semantics>(find.descendant(
+      of: find.byType(Stars), matching: find.byType(Semantics)));
+    expect(label.excludeSemantics, true);
+  });
+  testWidgets('unexpected landscape keeps intro controls reachable', (tester) async {
+    tester.view.physicalSize = const Size(740, 320);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final c = await ready(MemoryProgressRepository()); addTearDown(c.dispose);
+    await tester.pumpWidget(app(c, const FirstRunGate(child: Scaffold(body: Text('HOME')))));
+    await tester.pumpAndSettle();
+    await tapVisible(tester, 'SKIP');
+    expect(find.text('HOME'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('failed intro save stays recoverable until retry succeeds', (tester) async {
     final repo = FailingIntroRepository();
     final c = await ready(repo); addTearDown(c.dispose);
@@ -50,6 +149,7 @@ void main() {
       {'highestLevel': 2}, {'levels': {'1': {'stars': 1}}},
       {'daily': {'2026-09-11': {'levelId': 7, 'status': 'won'}}},
       {'activeSession': <String, dynamic>{}},
+      {'achievements': ['first_find']}, {'collectibles': ['old_key']},
     ]) {
       expect(Progress.fromJson(old).settings.introVersion, 1);
     }
@@ -107,7 +207,9 @@ void main() {
     expect(c.read(profileProvider).settings.introVersion, 0);
   });
   testWidgets('Settings replay and back leave all progress unchanged', (tester) async {
-    final repo = MemoryProgressRepository()..value = Progress(highestLevel: 8);
+    final repo = MemoryProgressRepository()..value = Progress(highestLevel: 8,
+      settings: const UserSettings(introVersion: 1, seenTips: {'hint', 'stars'}),
+      daily: const {'2026-09-11': DailyRecord(levelId: 7, status: 'won')});
     final c = await ready(repo); addTearDown(c.dispose);
     final before = c.read(profileProvider).toJson();
     await tester.pumpWidget(app(c, const SettingsScreen()));

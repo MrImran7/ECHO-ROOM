@@ -16,16 +16,16 @@ class HowToPlayScreen extends ConsumerStatefulWidget {
 class _HowToPlayScreenState extends ConsumerState<HowToPlayScreen> {
   static const steps = [
     (Icons.visibility_outlined, 'LOOK CLOSELY', 'Remember the room.'),
-    (Icons.nightlight_outlined, 'LIGHTS OUT', 'One detail changes while the room is dark.'),
+    (Icons.nightlight_outlined, 'LIGHTS OUT', 'One detail changes in the dark.'),
     (Icons.touch_app_outlined, 'FIND THE CHANGE', 'Tap what changed — even if it disappeared.'),
   ];
   int _step = 0;
   bool _leaving = false;
-  Future<void> _finish() async {
+  Future<void> _finish({bool skipped = false}) async {
     if (_leaving) return;
     setState(() => _leaving = true);
     try {
-      await ref.read(profileProvider.notifier).finishIntro();
+      await ref.read(profileProvider.notifier).finishIntro(skipped: skipped);
       if (mounted) widget.onFinished?.call();
     } catch (_) {
       if (mounted) {
@@ -40,7 +40,7 @@ class _HowToPlayScreenState extends ConsumerState<HowToPlayScreen> {
     canPop: !widget.firstLaunch,
     onPopInvokedWithResult: (didPop, _) {
       if (didPop || !widget.firstLaunch || _leaving) return;
-      if (_step > 0) { setState(() => _step--); } else { _finish(); }
+      if (_step > 0) { setState(() => _step--); } else { _finish(skipped: true); }
     },
     child: Scaffold(
       appBar: AppBar(title: Text(widget.firstLaunch ? 'ECHO ROOM' : 'HOW TO PLAY')),
@@ -49,7 +49,7 @@ class _HowToPlayScreenState extends ConsumerState<HowToPlayScreen> {
         if (widget.firstLaunch) ...[
           Eyebrow('STEP ${_step + 1} OF 3'),
           const SizedBox(height: 24),
-          Icon(steps[_step].$1, size: 48),
+          ExcludeSemantics(child: Icon(steps[_step].$1, size: 48)),
           const SizedBox(height: 20),
           Semantics(header: true, liveRegion: true, child: Text(steps[_step].$2,
               textAlign: TextAlign.center, style: Theme.of(context).textTheme.headlineMedium)),
@@ -60,7 +60,7 @@ class _HowToPlayScreenState extends ConsumerState<HowToPlayScreen> {
             if (_step == 2) { await _finish(); } else { setState(() => _step++); }
           }),
           const SizedBox(height: 12),
-          ActionButton('SKIP', secondary: true, onPressed: _leaving ? null : _finish),
+          ActionButton('SKIP', secondary: true, onPressed: _leaving ? null : () => _finish(skipped: true)),
         ] else ...[
           for (final step in steps) ListTile(
             leading: Icon(step.$1), title: Text(step.$2), subtitle: Text(step.$3)),

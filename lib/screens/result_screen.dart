@@ -124,11 +124,6 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
           onHome: _leaving ? null : _home,
         ) : PageBody(
           children: [
-            if (won) const Guidance(id: 'stars', text: 'Faster solves, fewer mistakes and fewer hints earn more stars. Solve to unlock the next room; replay to improve your best.'),
-            if (done.newAchievements.isNotEmpty)
-              const Guidance(id: 'achievement', text: 'Achievement unlocked. Find it in Collection.'),
-            if (done.newCollectibles.isNotEmpty)
-              const Guidance(id: 'collection', text: 'New item added to Collection.'),
             const SizedBox(height: 24),
             Icon(
               won
@@ -259,6 +254,8 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
               secondary: true,
               onPressed: _leaving ? null : _home,
             ),
+            if (won && !daily) const Guidance(id: 'stars',
+              text: 'Faster, cleaner solves earn more stars. Replay to improve your best.'),
             if (daily) ...[
               const SizedBox(height: 16),
               const Text('A new room awaits at local midnight.', textAlign: TextAlign.center),
