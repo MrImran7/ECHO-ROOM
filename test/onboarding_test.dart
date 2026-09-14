@@ -248,7 +248,7 @@ void main() {
       await tester.pumpAndSettle();
       await tapVisible(tester, 'CONTINUE');
       await tapVisible(tester, 'CONTINUE');
-      await tester.ensureVisible(find.text('SKIP')); await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(find.text('SKIP'), 120); await tester.pumpAndSettle();
       expect(find.text('SKIP').hitTestable(), findsOneWidget);
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(app(c, const HowToPlayScreen(), scale: scale));
