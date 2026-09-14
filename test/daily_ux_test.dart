@@ -24,7 +24,7 @@ void main() {
       '2026-09-04': {'levelId': 7, 'hintsUsed': 4},
       '2026-09-05': {'levelId': 7, 'time': -1},
       '2026-02-30': {'levelId': 7},
-      'nonsense': {},
+      'nonsense': <String, dynamic>{},
       '2026-09-06': null,
     }});
     expect(p.highestLevel, 8);
@@ -114,6 +114,11 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('NEW DAILY BEST'), findsOneWidget);
       await tester.scrollUntilVisible(find.text('HOME'), 120);
+      await tester.pumpAndSettle();
+      await Scrollable.ensureVisible(tester.element(find.text('HOME')),
+          alignment: 0.5);
+      await tester.pumpAndSettle();
+      expect(find.text('HOME').hitTestable(), findsOneWidget);
       await tester.tap(find.text('HOME'));
       await tester.pumpAndSettle();
       expect(homePressed, true);
