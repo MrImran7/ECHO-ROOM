@@ -110,12 +110,16 @@ void main() {
     await tester.pumpWidget(const SizedBox());
   });
   testWidgets('stars expose one aggregate spoken value', (tester) async {
-    final semantics = tester.ensureSemantics(); addTearDown(semantics.dispose);
+    final semantics = tester.ensureSemantics();
+    try {
     await tester.pumpWidget(const MaterialApp(home: Scaffold(body: Stars(2))));
     expect(find.bySemanticsLabel('2 of 3 stars'), findsOneWidget);
     final label = tester.widget<Semantics>(find.descendant(
       of: find.byType(Stars), matching: find.byType(Semantics)).first);
     expect(label.excludeSemantics, true);
+    } finally {
+      semantics.dispose();
+    }
   });
   testWidgets('unexpected landscape keeps intro controls reachable', (tester) async {
     tester.view.physicalSize = const Size(740, 320);
