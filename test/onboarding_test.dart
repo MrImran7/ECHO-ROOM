@@ -114,7 +114,7 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: Scaffold(body: Stars(2))));
     expect(find.bySemanticsLabel('2 of 3 stars'), findsOneWidget);
     final label = tester.widget<Semantics>(find.descendant(
-      of: find.byType(Stars), matching: find.byType(Semantics)));
+      of: find.byType(Stars), matching: find.byType(Semantics)).first);
     expect(label.excludeSemantics, true);
   });
   testWidgets('unexpected landscape keeps intro controls reachable', (tester) async {
