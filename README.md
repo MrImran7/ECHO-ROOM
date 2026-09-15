@@ -38,6 +38,8 @@ Add a sequential level entry referencing the room, with observation/answer durat
 
 ## Debug and validation
 
+See [Testing strategy](docs/TESTING.md) for CI/local commands and coverage, and [Physical test plan](docs/PHYSICAL_TEST_PLAN.md) for stable hardware QA cases and the PR #6 smoke suite.
+
 Debug builds expose level unlocking/selection, skipped countdown/observation, hitboxes, hints and progress/lives resets in Settings/Chapters. Build-time lives options are in `GameConfig`; debug controls are omitted in release builds. Reset progress requires confirmation.
 
 ```sh
