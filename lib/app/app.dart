@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/progress.dart';
+import '../onboarding/how_to_play_screen.dart';
 import '../screens/home_screen.dart';
 import '../widgets/common.dart';
 import 'providers.dart';
@@ -98,6 +99,6 @@ class _Bootstrap extends ConsumerWidget {
           ),
         ),
       );
-    return const HomeScreen();
+    return const FirstRunGate(child: HomeScreen());
   }
 }
