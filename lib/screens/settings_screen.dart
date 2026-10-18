@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app/providers.dart';
+import '../onboarding/how_to_play_screen.dart';
 import '../app/theme.dart';
 import '../core/config.dart';
 import '../services/audio_service.dart';
@@ -28,6 +29,12 @@ class SettingsScreen extends ConsumerWidget {
       body: PageBody(
         children: [
           const SizedBox(height: 20),
+          ActionButton('HOW TO PLAY', secondary: true, onPressed: () async {
+            await Navigator.of(context).push<void>(MaterialPageRoute(
+              builder: (_) => const HowToPlayScreen()));
+          }),
+          const SizedBox(height: 16),
+          const Text('Progress is saved on this device.', textAlign: TextAlign.center),
           const Eyebrow('MAKE YOURSELF AT HOME'),
           const SizedBox(height: 24),
           SwitchListTile(

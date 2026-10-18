@@ -39,6 +39,9 @@ void main() {
       );
       await tester.pump();
       await tester.pump();
+      expect(find.text('LOOK CLOSELY'), findsOneWidget);
+      await tester.tap(find.text('SKIP'));
+      await tester.pumpAndSettle();
       await tester.ensureVisible(find.text('PLAY'));
       await tester.tap(find.text('PLAY'));
       await tester.pump();

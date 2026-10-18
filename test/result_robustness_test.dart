@@ -181,6 +181,8 @@ void main() {
             .firstWhere((b) => b.label == 'HOME')
             .onPressed!;
         await reveal(tester, primary);
+        // Contextual tips have already saved their preferences on entry.
+        final writesBeforeNavigation = repo.writes;
         repo.gate = Completer<void>();
         final first = play();
         await tester.pump();
@@ -192,7 +194,7 @@ void main() {
               .every((b) => b.onPressed == null),
           true,
         );
-        expect(repo.writes, 1);
+        expect(repo.writes - writesBeforeNavigation, 1);
         repo.gate!.complete();
         await first;
         for (var i = 0; i < 8; i++) {

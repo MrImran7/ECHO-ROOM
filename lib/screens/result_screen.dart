@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../achievements/definitions.dart';
 import '../app/providers.dart';
+import '../onboarding/guidance.dart';
 import '../app/theme.dart';
 import '../collection/definitions.dart';
 import '../game/session.dart';
@@ -253,6 +254,8 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
               secondary: true,
               onPressed: _leaving ? null : _home,
             ),
+            if (won && !daily) const Guidance(id: 'stars',
+              text: 'Faster, cleaner solves earn more stars. Replay to improve your best.'),
             if (daily) ...[
               const SizedBox(height: 16),
               const Text('A new room awaits at local midnight.', textAlign: TextAlign.center),

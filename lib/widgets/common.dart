@@ -211,6 +211,7 @@ class Stars extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Semantics(
     label: '$count of 3 stars',
+    excludeSemantics: true,
     child: Row(
       mainAxisSize: MainAxisSize.min,
       children: List.generate(
